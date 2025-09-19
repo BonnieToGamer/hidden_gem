@@ -15,7 +15,6 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-
           // Display user's name in the app bar
             "Welcome ${user.displayName}"),
       ),
