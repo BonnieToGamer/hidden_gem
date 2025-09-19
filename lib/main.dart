@@ -14,8 +14,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  
-
   await GoogleSignIn.instance.initialize();
 
   runApp(

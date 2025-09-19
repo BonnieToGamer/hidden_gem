@@ -35,7 +35,7 @@ class SignInScreen extends StatelessWidget {
             if (user != null) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => HomePage(user: user)),
+                MaterialPageRoute(builder: (_) => HomePage()),
               );
             }
           },

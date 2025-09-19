@@ -14,7 +14,7 @@ class Authenticate extends StatelessWidget {
     if (user == null) {
       return SignInScreen();
     } else {
-      return HomePage(user: user);
+      return HomePage();
     }
   }
 }
