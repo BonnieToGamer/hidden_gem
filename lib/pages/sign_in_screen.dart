@@ -15,9 +15,7 @@ class SignInScreen extends StatelessWidget {
     return Scaffold(
       // AppBar with title and styling
       appBar: AppBar(
-        title: Text("GFG Sign In"),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
+        title: Text("Sign In"),
       ),
       // Main body of the screen
       body: Center(
@@ -35,7 +33,7 @@ class SignInScreen extends StatelessWidget {
             if (user != null) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => HomePage()),
+                MaterialPageRoute(builder: (_) => HomePage(user: user)),
               );
             }
           },

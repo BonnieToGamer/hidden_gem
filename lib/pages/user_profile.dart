@@ -7,14 +7,12 @@ import 'package:provider/provider.dart';
 
 class UserProfile extends StatelessWidget {
   final GoogleAuthService _authService = GoogleAuthService();
+  final User user;
 
-  UserProfile({super.key});
-
+  UserProfile({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<User>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -51,7 +49,7 @@ class UserProfile extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1, user: user),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hidden_gem/pages/home_page.dart';
@@ -5,10 +6,12 @@ import 'package:hidden_gem/pages/user_profile.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
+  final User user;
 
   const CustomNavigationBar({
     super.key,
-    required this.currentIndex
+    required this.currentIndex,
+    required this.user
   });
 
   void _move(BuildContext context, Widget newWidget) {
@@ -32,9 +35,9 @@ class CustomNavigationBar extends StatelessWidget {
       selectedIndex: currentIndex,
       onDestinationSelected: (int index) {
         if (index == 0) {
-          _move(context, HomePage());
+          _move(context, HomePage(user: user));
         } else if (index == 1) {
-          _move(context, UserProfile());
+          _move(context, UserProfile(user: user));
         }
       },
 
