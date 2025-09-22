@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hidden_gem/pages/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/user_profile.dart';
 
@@ -37,12 +38,15 @@ class CustomNavigationBar extends StatelessWidget {
         if (index == 0) {
           _move(context, HomePage(user: user));
         } else if (index == 1) {
+          _move(context, CreatePost(user: user));
+        } else if (index == 2) {
           _move(context, UserProfile(user: user));
         }
       },
 
       destinations: const <Widget>[
         NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "home"),
+        NavigationDestination(icon: Icon(Icons.add_outlined), selectedIcon: Icon(Icons.add), label: "add post"),
         NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: "profile")
       ],
     );

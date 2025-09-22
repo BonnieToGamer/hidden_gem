@@ -49,7 +49,7 @@ class UserProfile extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 1, user: user),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 2, user: user),
     );
   }
 }

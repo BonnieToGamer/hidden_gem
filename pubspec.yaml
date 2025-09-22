@@ -42,6 +42,8 @@ dependencies:
   geolocator: ^14.0.2
   url_launcher: ^6.3.2
   latlong2: ^0.9.1
+  cloud_firestore: ^6.0.1
+  photo_manager: ^3.7.1
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/pages/sign_in_screen.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/google_auth_service.dart';
+import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 
@@ -26,7 +29,22 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _homePage() {
-    return GemsMap();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // GemsMap(),
+        ElevatedButton(
+          onPressed: () async {
+            PostsService().createPost(user, "Test", "Hello world!", GeoPoint(1.0, 2.0), Timestamp.now());
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.red.shade900,
+          ),
+          child: Text("Test db"),
+        ),
+      ]
+    );
   }
 
   FutureBuilder<bool> _checkPermission() {
