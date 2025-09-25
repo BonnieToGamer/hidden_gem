@@ -9,6 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/pages/pick_on_map.dart';
+import 'package:hidden_gem/pages/uploadPost.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
@@ -142,21 +143,7 @@ class _NewPostState extends State<NewPost> {
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    if (_selectedPosition == null) {
-                      showToast("Selected position was null");
-                      return;
-                    }
-                    PostsService().createPost(
-                      widget.user,
-                      _nameController.text,
-                      _descriptionController.text,
-                      GeoPoint(_selectedPosition!.latitude, _selectedPosition!.longitude),
-                      Timestamp.now()
-                    );
-                  }
-                },
+                onPressed: _createPost,
                 child: const Text("Submit")
               )
             ),
@@ -164,6 +151,26 @@ class _NewPostState extends State<NewPost> {
         ]
       ),
     );
+  }
+
+  void _createPost() {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedPosition == null) {
+        showToast("Selected position was null");
+        return;
+      }
+
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) =>
+          UploadPost(
+            user: widget.user,
+            name: _nameController.text,
+            description: _descriptionController.text,
+            point: GeoPoint(_selectedPosition!.latitude, _selectedPosition!.longitude),
+            images: widget.images,
+          )
+      ));
+    }
   }
 
   void _setLocation(LatLng location) {

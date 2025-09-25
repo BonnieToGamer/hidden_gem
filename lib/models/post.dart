@@ -6,6 +6,7 @@ class Post {
   final String description;
   final GeoPoint point;
   final Timestamp timestamp;
+  final List<String> imageIds;
 
   Post({
     required this.authorId,
@@ -13,6 +14,7 @@ class Post {
     required this.description,
     required this.point,
     required this.timestamp,
+    required this.imageIds,
   });
 
   factory Post.fromFirestore(DocumentSnapshot doc) {
@@ -23,6 +25,7 @@ class Post {
       description: data['description'],
       point: data['point'],
       timestamp: data['timestamp'],
+      imageIds: data['imageIds'],
     );
   }
 
@@ -33,6 +36,7 @@ class Post {
       'description': description,
       'point': point,
       'timestamp': timestamp,
+      'imageIds': imageIds,
     };
   }
 }

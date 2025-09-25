@@ -10,9 +10,9 @@ class PostsService {
     await _db.collection(_collectionPath).add(post.toMap());
   }
 
-  Future<void> createPost(User author, String name, String description, GeoPoint point, Timestamp timestamp) async {
+  Future<void> createPost(User author, String name, String description, GeoPoint point, Timestamp timestamp, List<String> imageIds) async {
     try {
-      final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp);
+      final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: imageIds);
       await _db.collection(_collectionPath).add(post.toMap());
     } catch (e) {
       print("Error");
