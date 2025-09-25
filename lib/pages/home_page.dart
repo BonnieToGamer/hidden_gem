@@ -1,17 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
-import 'package:hidden_gem/pages/sign_in_screen.dart';
+import 'package:hidden_gem/pages/ViewPost.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
-import 'package:hidden_gem/services/google_auth_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
+import 'package:latlong2/latlong.dart';
 
-class HomePage extends StatelessWidget {
-  final GoogleAuthService _authService = GoogleAuthService();
+class HomePage extends StatefulWidget {
   final User user;
+  final PostsService postsService = PostsService();
+  LatLng currentCenter = defaultLocation;
 
   HomePage({
     super.key,
@@ -19,17 +21,51 @@ class HomePage extends StatelessWidget {
   });
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  double _radius = 50;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: _checkPermission(),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 0, user: user),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 0, user: widget.user),
     );
   }
 
   Widget _homePage() {
-    return GemsMap();
+    return StreamBuilder<List<Post>>(
+      stream: widget.postsService.getPosts(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return SizedBox.shrink();
+        }
+
+        final posts = snapshot.data!;
+        return GemsMap(
+          markers: posts.map((post) {
+            return Marker(
+              point: LatLng(post.point.geopoint.latitude, post.point.geopoint.longitude),
+              rotate: true,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPost(user: widget.user, post: post)));
+                },
+                child: Icon(Icons.pin_drop)
+              ),
+            );
+          }).toList(),
+          onTapCallback: (location) {
+            // setState(() {
+              // widget.currentCenter = location;
+            // });
+          },
+        );
+      });
   }
 
   FutureBuilder<bool> _checkPermission() {

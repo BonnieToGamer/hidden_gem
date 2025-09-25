@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 class Post {
   final String authorId;
   final String name;
   final String description;
-  final GeoPoint point;
+  final GeoFirePoint point;
   final Timestamp timestamp;
   final List<String> imageIds;
 
@@ -19,13 +20,16 @@ class Post {
 
   factory Post.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final pointData = data['point'] as Map<String, dynamic>;
+    final geoPoint = pointData['geopoint'] as GeoPoint;
+
     return Post(
       authorId: data['authorId'],
       name: data['name'],
       description: data['description'],
-      point: data['point'],
+      point: GeoFirePoint(geoPoint),
       timestamp: data['timestamp'],
-      imageIds: data['imageIds'],
+      imageIds: List<String>.from(data['imageIds'] ?? []),
     );
   }
 
@@ -34,7 +38,7 @@ class Post {
       'authorId': authorId,
       'name': name,
       'description': description,
-      'point': point,
+      'point': point.data,
       'timestamp': timestamp,
       'imageIds': imageIds,
     };

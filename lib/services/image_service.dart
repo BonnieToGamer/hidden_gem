@@ -24,4 +24,14 @@ class ImageService {
       return null;
     }
   }
+
+  Future<List<String>> getImageUrls(List<String> imageIds) async {
+    final urls = await Future.wait(
+      imageIds.map((id) async {
+        final ref = imagesRef.child("$id.png");
+        return await ref.getDownloadURL();
+      }),
+    );
+    return urls;
+  }
 }

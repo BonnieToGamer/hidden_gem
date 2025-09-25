@@ -5,16 +5,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 
 class UploadPost extends StatefulWidget {
   final User user;
   final String name;
   final String description;
-  final GeoPoint point;
+  final LatLng point;
   final List<File> images;
   final imageService = ImageService();
   final postService = PostsService();
@@ -53,11 +55,13 @@ class _UploadPostState extends State<UploadPost> {
       imageIds.add(result);
     }
 
+    final geoPoint = GeoFirePoint(GeoPoint(widget.point.latitude, widget.point.longitude));
+
     await widget.postService.createPost(
       widget.user,
       widget.name,
       widget.description,
-      widget.point,
+      geoPoint,
       Timestamp.now(),
       imageIds
     );

@@ -55,6 +55,7 @@ dependencies:
   uuid: ^4.5.1
   flutter_confetti: ^0.5.1
   geoflutterfire_plus: ^0.0.33
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

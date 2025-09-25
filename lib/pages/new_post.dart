@@ -166,7 +166,7 @@ class _NewPostState extends State<NewPost> {
             user: widget.user,
             name: _nameController.text,
             description: _descriptionController.text,
-            point: GeoPoint(_selectedPosition!.latitude, _selectedPosition!.longitude),
+            point: _selectedPosition!,
             images: widget.images,
           )
       ));
