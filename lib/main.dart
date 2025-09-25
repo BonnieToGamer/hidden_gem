@@ -7,6 +7,7 @@ import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/sign_in_screen.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -32,13 +33,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hidden gem',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return OKToast(
+      child: MaterialApp(
+        title: 'Hidden gem',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        ),
+        home: Authenticate(forward: (user) => HomePage(user: user))
       ),
-      home: Authenticate(forward: (user) => HomePage(user: user))
     );
   }
 }

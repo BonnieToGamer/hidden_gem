@@ -47,6 +47,10 @@ dependencies:
   transparent_image: ^2.0.1
   oktoast: ^3.4.0
   photo_manager_image_provider: ^2.2.0
+  camera: ^0.11.2
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:

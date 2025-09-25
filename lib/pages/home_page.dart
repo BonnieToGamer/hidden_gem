@@ -29,22 +29,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _homePage() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // GemsMap(),
-        ElevatedButton(
-          onPressed: () async {
-            PostsService().createPost(user, "Test", "Hello world!", GeoPoint(1.0, 2.0), Timestamp.now());
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.red.shade900,
-          ),
-          child: Text("Test db"),
-        ),
-      ]
-    );
+    return GemsMap();
   }
 
   FutureBuilder<bool> _checkPermission() {

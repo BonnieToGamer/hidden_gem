@@ -7,28 +7,47 @@ class GalleryImage extends StatelessWidget {
     super.key,
     required this.entity,
     required this.option,
+    required this.selected,
     this.onTap,
   });
 
+  final bool selected;
   final AssetEntity entity;
   final ThumbnailOption option;
   final GestureTapCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(0.5),
-        child: AssetEntityImage(
-          entity,
-          isOriginal: false,
-          thumbnailSize: option.size,
-          thumbnailFormat: option.format,
-          fit: BoxFit.cover,
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(0.5),
+              child: AssetEntityImage(
+                entity,
+                isOriginal: false,
+                thumbnailSize: option.size,
+                thumbnailFormat: option.format,
+                fit: BoxFit.cover,
+              ),
+            )
+          ),
         ),
-      )
+        Positioned(
+          top: 2.0,
+          left: 2.0,
+          child: Icon(
+            selected ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+
+          )
+        )
+      ],
     );
   }
 }

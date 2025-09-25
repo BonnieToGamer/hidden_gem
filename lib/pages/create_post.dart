@@ -1,10 +1,15 @@
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden_gem/constants.dart';
+import 'package:hidden_gem/pages/new_post.dart';
+import 'package:hidden_gem/pages/take_picture.dart';
 import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 // https://pub.dev/packages/photo_manager/example
 
@@ -19,7 +24,6 @@ class CreatePost extends StatefulWidget {
 
 class _CreatePostState extends State<CreatePost> {
   final int _sizePerPage = 64;
-  final int _maxSelectedImages = 5;
   static const int _gridWidth = 4;
 
   bool _loading = false;
@@ -31,7 +35,8 @@ class _CreatePostState extends State<CreatePost> {
   int _totalEntitiesCount = 0;
   int _page = 0;
 
-  Map<int, bool> _selectedImages = {};
+  final _selectedGalleryImages = <int, bool>{};
+  int _totalSelectedImages = 0;
 
   @override
   void initState() {
@@ -39,6 +44,7 @@ class _CreatePostState extends State<CreatePost> {
     _requestAssets();
   }
 
+  // Ask for permission and get images.
   Future<void> _requestAssets() async {
     setState(() {
       _loading = true;
@@ -46,9 +52,7 @@ class _CreatePostState extends State<CreatePost> {
 
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     
     if (!ps.hasAccess) {
       setState(() {
@@ -70,9 +74,7 @@ class _CreatePostState extends State<CreatePost> {
       filterOption: filter
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (paths.isEmpty) {
       setState(() {
@@ -93,9 +95,7 @@ class _CreatePostState extends State<CreatePost> {
         size: _sizePerPage
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     setState(() {
       _entities = entities;
@@ -104,15 +104,14 @@ class _CreatePostState extends State<CreatePost> {
     });
   }
 
+  // Load more images.
   Future<void> _loadMoreAssets() async {
     final List<AssetEntity> entities = await _path!.getAssetListPaged(
         page: _page + 1,
         size: _sizePerPage
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     setState(() {
       _entities!.addAll(entities);
@@ -124,19 +123,84 @@ class _CreatePostState extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildGallery(),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 1, user: widget.user),
-    );
+    return selectImagesState();
   }
 
+  // State for selecting images from gallery.
+  Scaffold selectImagesState() {
+    return Scaffold(
+    appBar: AppBar(
+      title: Text("Select up to $maxImagesPerPost images."),
+    ),
+    body: Column(
+      verticalDirection: VerticalDirection.down,
+      children: [
+        Expanded(
+            child: _buildGallery()
+        )
+      ]
+    ),
+    bottomNavigationBar: CustomNavigationBar(currentIndex: 1, user: widget.user),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => TakePicture(user: widget.user)));
+            },
+            child: Icon(
+                Icons.camera_alt
+            )
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 100),
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(
+                scale: animation,
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+            child: _totalSelectedImages >= 1
+              ? ElevatedButton(
+                key: ValueKey("sendBtn"),
+                onPressed: () async {
+                  List<File> images = [];
+                  if (_entities != null) {
+                    for (final ent in _entities!) {
+                      final int index = _entities!.indexOf(ent);
+                      if (_selectedGalleryImages.containsKey(index) == false || _selectedGalleryImages[index] == false) continue;
+
+                      print("Key $index exists? ${_selectedGalleryImages.containsKey(index)}");
+
+                      final file = await ent.file;
+                      if (file != null) {
+                        images.add(file);
+                      }
+                    }
+                  }
+
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => NewPost(user: widget.user, images: images)));
+                },
+                child: Icon(Icons.send),
+              )
+              : const SizedBox.shrink(key: ValueKey("empty"))
+          ),
+        ]
+      ),
+    )
+  );
+  }
+
+  // Build the gallery widget.
   Widget _buildGallery() {
     if (_loading || _path == null) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_entities?.isEmpty == true) {
-      return const Center(child: Text("No images where found on this device."));
     }
 
     return GridView.builder(
@@ -149,10 +213,35 @@ class _CreatePostState extends State<CreatePost> {
           _loadMoreAssets();
         }
         final AssetEntity entity = _entities![index];
+
+        bool isSelected;
+        if (_selectedGalleryImages.containsKey(index)) {
+          isSelected = _selectedGalleryImages[index]!;
+        } else {
+          _selectedGalleryImages[index] = false;
+          isSelected = false;
+        }
+
         return GalleryImage(
           key: ValueKey<int>(index),
           entity: entity,
           option: const ThumbnailOption(size: ThumbnailSize.square(200)),
+          selected: isSelected,
+          onTap: () {
+            if (_totalSelectedImages >= maxImagesPerPost && !isSelected) {
+              return;
+            }
+
+            setState(() {
+              if (isSelected) {
+                _totalSelectedImages--;
+              } else {
+                _totalSelectedImages++;
+              }
+
+              _selectedGalleryImages[index] = !isSelected;
+            });
+          },
         );
       },
     );
