@@ -21,10 +21,6 @@ class SignInScreen extends StatelessWidget {
       body: Center(
         // ElevatedButton for Google Sign-In
         child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.green,
-          ),
           // Asynchronous function triggered on button press
           onPressed: () async {
             // Attempt to sign in with Google

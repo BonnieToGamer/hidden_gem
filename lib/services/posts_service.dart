@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:rxdart/rxdart.dart';
 
+// REFACTOR: make it static no reason to make instances
 class PostsService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final String _collectionPath = "posts";
@@ -12,25 +15,75 @@ class PostsService {
     await _db.collection(_collectionPath).add(post.toMap());
   }
 
-  Future<void> createPost(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds) async {
+  Future<void> createPost(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) async {
     try {
-      final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: imageIds);
+      final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: imageIds, isPublic: isPublic);
       await _db.collection(_collectionPath).add(post.toMap());
     } catch (e) {
-      print("Error");
+      print("Error in createPost $e");
     }
   }
 
-  Stream<List<Post>> getPosts() {
-    return _db
-      .collection(_collectionPath)
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .map((snapshot) =>
-        snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList());
+  Stream<List<Post>> getPosts(String userId) {
+    // Query public posts
+    final publicStream = _db
+        .collection('posts')
+        .where('isPublic', isEqualTo: true)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+
+    // Query posts by current user
+      final ownStream = _db
+          .collection('posts')
+          .where('authorId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .snapshots();
+
+    return Rx.combineLatest2<QuerySnapshot, QuerySnapshot, List<Post>>(
+      publicStream,
+      ownStream,
+      (publicSnap, ownSnap) {
+        final allDocs = [
+          ...publicSnap.docs,
+          ...ownSnap.docs,
+        ];
+
+        // Remove duplicates by ID
+        final uniqueDocs = {for (var doc in allDocs) doc.id: doc}.values.toList();
+        return uniqueDocs.map((doc) => Post.fromFirestore(doc)).toList();
+      },
+    );
+  }
+
+  // updates a post
+  // returns true if it succeeded otherwise false.
+  Future<bool> updatePost(Post post) async {
+    try {
+      await _db.collection(_collectionPath).doc(post.postId).update(post.toMap());
+      return true;
+    } catch (e) {
+      print("Error updating post: $e");
+      return false;
+    }
+  }
+
+  Future<bool> deletePost(Post post) async {
+    try {
+      final imageService = ImageService();
+      for (String id in post.imageIds) {
+        await imageService.deleteImage(id);
+      }
+
+      await _db.collection(_collectionPath).doc(post.postId).delete();
+      return true;
+    } catch (e) {
+      print("Error deleting post: $e");
+      return false;
+    }
   }
 
   // make this actually work :(
+  // https://www.geeksforgeeks.org/dsa/haversine-formula-to-find-distance-between-two-points-on-a-sphere/
   // Stream<List<Post>> getPosts(LatLng center, double radiusInKm) {
   //   final collectionReference = _db.collection("posts").withConverter<Post>(
   //       fromFirestore: (ds, _) => Post.fromFirestore(ds),

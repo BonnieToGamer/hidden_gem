@@ -15,13 +15,24 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
+  final CarouselController _controller = CarouselController();
+  late Future<List<String>> _imageUrlsFuture;
+  int _current = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageUrlsFuture = widget.imageService.getImageUrls(widget.post.imageIds);
+  }
+
   @override
   Widget build(BuildContext context) {
+    // TODO: move this further down into the carousel
     return FutureBuilder(
-      future: widget.imageService.getImageUrls(widget.post.imageIds),
+      future: _imageUrlsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
           return const Text("Error loading images");
@@ -33,41 +44,92 @@ class _PostWidgetState extends State<PostWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CarouselSlider(
-              options: CarouselOptions(
-                enableInfiniteScroll: false,
-                autoPlay: false,
-                initialPage: 0,
-                height: 300,
-                disableCenter: true,
-                enlargeCenterPage: false,
-
-              ),
-              items: urls.map((url) {
-                return Container(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  margin: EdgeInsets.symmetric(horizontal: 5.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => Dialog(
-                          child: InteractiveViewer(
-                              child: Image.network(url) // TODO: check out https://pub.dev/packages/photo_view
-                          )
-                        )
-                      );
+            Column(
+              children: [
+                CarouselSlider(
+                  options: CarouselOptions(
+                    enableInfiniteScroll: false,
+                    autoPlay: false,
+                    initialPage: 0,
+                    height: 300,
+                    disableCenter: true,
+                    enlargeCenterPage: false,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        _current = index;
+                      });
                     },
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.scaleDown
-                    ),
-                  )
-                );
-              }).toList(),
+                  ),
+                  items: urls.map((url) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => Dialog(
+                              child: InteractiveViewer(
+                                child: Image.network(
+                                  url,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      },
+                                ), // TODO: check out https://pub.dev/packages/photo_view
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.network(
+                          url,
+                          fit: BoxFit.scaleDown,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 150,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                ?(widget.post.imageIds.length > 1) ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: widget.post.imageIds.asMap().entries.map((entry) {
+                    return Container(
+                      width: 8.0,
+                      height: 8.0,
+                      margin: EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 4.0,
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color:
+                            (Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black)
+                                .withValues(alpha:
+                                  _current == entry.key ? 0.9 : 0.4,
+                                ),
+                      ),
+                    );
+                  }).toList(),
+                ) : null,
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -76,23 +138,19 @@ class _PostWidgetState extends State<PostWidget> {
                 children: [
                   Text(
                     widget.post.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold
-                    )
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(widget.post.description),
                   Text(
                     DateFormat("MMM d").format(widget.post.timestamp.toDate()),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300
-                    ),
-                  )
+                    style: TextStyle(fontWeight: FontWeight.w300),
+                  ),
                 ],
               ),
             ),
           ],
         );
-      }
+      },
     );
   }
 }

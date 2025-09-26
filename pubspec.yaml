@@ -56,6 +56,7 @@ dependencies:
   flutter_confetti: ^0.5.1
   geoflutterfire_plus: ^0.0.33
   intl: ^0.20.2
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

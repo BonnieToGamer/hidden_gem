@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
-import 'package:hidden_gem/pages/ViewPost.dart';
+import 'package:hidden_gem/pages/view_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
@@ -37,9 +37,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // TODO: filters on e.g newly made posts
   Widget _homePage() {
     return StreamBuilder<List<Post>>(
-      stream: widget.postsService.getPosts(),
+      stream: widget.postsService.getPosts(widget.user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox.shrink();

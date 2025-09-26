@@ -8,7 +8,6 @@ import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/image_service.dart';
-import 'package:hidden_gem/services/posts_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -18,10 +17,12 @@ class UploadPost extends StatefulWidget {
   final String description;
   final LatLng point;
   final List<File> images;
+  final bool isPublic;
   final imageService = ImageService();
-  final postService = PostsService();
+  final bool uploadImages;
+  final Function(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) uploadFunction;
 
-  UploadPost({super.key, required this.user, required this.name, required this.description, required this.point, required this.images});
+  UploadPost({super.key, required this.user, required this.name, required this.description, required this.point, required this.images, required this.isPublic, required this.uploadImages, required this.uploadFunction});
 
   @override
   State<StatefulWidget> createState() => _UploadPostState();
@@ -31,6 +32,7 @@ class UploadPost extends StatefulWidget {
 class _UploadPostState extends State<UploadPost> {
   bool _isLoading = false;
   bool _confettiLaunched = false;
+  String _statusText = "";
 
   @override
   void initState() {
@@ -42,34 +44,52 @@ class _UploadPostState extends State<UploadPost> {
   Future<void> post() async {
     setState(() {
       _isLoading = true;
+      _statusText = "Uploading images";
     });
 
     List<String> imageIds = [];
+    int index = 0;
+    int maxIndex = widget.images.length;
 
-    for (File image in widget.images) {
-      String? result = await widget.imageService.uploadImage(image);
-      if (result == null) {
-        showToast("Failed to upload one of the images");
-        return;
+    if (widget.uploadImages) {
+      for (File image in widget.images) {
+        setState(() {
+          _isLoading = true;
+          _statusText = "Uploading image ${index + 1} of $maxIndex";
+        });
+
+        String? result = await widget.imageService.uploadImage(image);
+        if (result == null) {
+          showToast("Failed to upload one of the images");
+          return;
+        }
+        imageIds.add(result);
       }
-      imageIds.add(result);
     }
+
+    if (!mounted) return;
+
+    setState(() {
+      _statusText = "Uploading post";
+    });
 
     final geoPoint = GeoFirePoint(GeoPoint(widget.point.latitude, widget.point.longitude));
 
-    await widget.postService.createPost(
+    await widget.uploadFunction(
       widget.user,
       widget.name,
       widget.description,
       geoPoint,
       Timestamp.now(),
-      imageIds
+      imageIds,
+      widget.isPublic,
     );
 
     if (!mounted) return;
 
     setState(() {
       _isLoading = false;
+      _statusText = "";
     });
   }
 
@@ -82,7 +102,22 @@ class _UploadPostState extends State<UploadPost> {
 
   Widget _page(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              _statusText,
+              style: TextStyle(
+                color: Theme.of(context).primaryColor
+              ),
+            ),
+          ),
+        ],
+      ));
     } else {
       if (!_confettiLaunched) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

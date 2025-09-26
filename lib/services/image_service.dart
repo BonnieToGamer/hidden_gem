@@ -14,7 +14,7 @@ class ImageService {
   // Returns null if the upload fails.
   Future<String?> uploadImage(File image) async {
     final id = uuid.v4();
-    final imageRef = imagesRef.child("$id.png");
+    final imageRef = imagesRef.child(id);
 
     try {
       await imageRef.putFile(image);
@@ -28,10 +28,18 @@ class ImageService {
   Future<List<String>> getImageUrls(List<String> imageIds) async {
     final urls = await Future.wait(
       imageIds.map((id) async {
-        final ref = imagesRef.child("$id.png");
+        final ref = imagesRef.child(id);
         return await ref.getDownloadURL();
       }),
     );
     return urls;
+  }
+
+  Future<void> deleteImage(String id) async {
+    try {
+      await imagesRef.child(id).delete();
+    } catch (e) {
+      print("Error deleting image: $e");
+    }
   }
 }

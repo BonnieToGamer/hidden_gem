@@ -34,6 +34,8 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
       final lastPosition = await GeolocatorService.getLastLocation();
       if (lastPosition != null)
       {
+        if (!mounted) return;
+
         setState(() {
           _mapCenter = LatLng(
             lastPosition.latitude,
@@ -50,6 +52,8 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
       }
 
       final highAccuracyPosition = await GeolocatorService.getCurrentLocation(accuracy: LocationAccuracy.high);
+
+      if (!mounted) return;
       setState(() {
         _preciseLocation = LatLng(
           highAccuracyPosition.latitude,

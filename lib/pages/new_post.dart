@@ -9,7 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/pages/pick_on_map.dart';
-import 'package:hidden_gem/pages/uploadPost.dart';
+import 'package:hidden_gem/pages/upload_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
@@ -35,6 +35,7 @@ class _NewPostState extends State<NewPost> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _geoController;
+  bool _isPublic = false;
 
   @override
   void initState() {
@@ -111,7 +112,10 @@ class _NewPostState extends State<NewPost> {
                               ),
                             ],
                           ),
-                          _loadingCurrentLocation ? const CircularProgressIndicator() : TextFormField(
+                          _loadingCurrentLocation ? Padding(
+                            padding: EdgeInsets.all(_formPaddingHorizontal),
+                            child: const CircularProgressIndicator(),
+                          ) : TextFormField(
                             keyboardType: TextInputType.number,
                             decoration: _formDecoration("No location selected"),
                             style: _formStyle(),
@@ -127,6 +131,23 @@ class _NewPostState extends State<NewPost> {
                           )
                         ],
                       ),
+                    ),
+                    _buildDivider(context),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _formPaddingHorizontal),
+                      child:Row(
+                        children: [
+                          Text("Is post public?"),
+                          Checkbox(
+                            value: _isPublic,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _isPublic = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      )
                     )
                   ],
                 ),
@@ -168,6 +189,9 @@ class _NewPostState extends State<NewPost> {
             description: _descriptionController.text,
             point: _selectedPosition!,
             images: widget.images,
+            isPublic: _isPublic,
+            uploadImages: true,
+            uploadFunction: PostsService().createPost,
           )
       ));
     }
