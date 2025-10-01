@@ -13,7 +13,6 @@ import 'package:latlong2/latlong.dart';
 class HomePage extends StatefulWidget {
   final User user;
   final PostsService postsService = PostsService();
-  LatLng currentCenter = defaultLocation;
 
   HomePage({
     super.key,
@@ -25,8 +24,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  double _radius = 50;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,15 +53,13 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPost(user: widget.user, post: post)));
                 },
-                child: Icon(Icons.pin_drop)
+                child: Icon(
+                  Icons.location_pin,
+                  color: Theme.of(context).primaryColor,
+                )
               ),
             );
           }).toList(),
-          onTapCallback: (location) {
-            // setState(() {
-              // widget.currentCenter = location;
-            // });
-          },
         );
       });
   }

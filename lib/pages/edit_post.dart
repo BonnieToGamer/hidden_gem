@@ -245,7 +245,7 @@ class _EditPostState extends State<EditPost> {
   Divider _buildDivider(BuildContext context) => Divider(
     height: 1.0,
     thickness: 0.1,
-    color: Theme.of(context).colorScheme.primary,
+    color: Theme.of(context).primaryColor,
   );
 
   Widget _buildGemName() {

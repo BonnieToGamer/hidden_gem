@@ -42,8 +42,8 @@ class GalleryImage extends StatelessWidget {
           child: Icon(
             selected ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
             color: selected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).disabledColor.withValues(alpha: 0.6),
 
           )
         )

@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         title: 'Hidden gem',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         ),
         home: Authenticate(forward: (user) => HomePage(user: user))
       ),

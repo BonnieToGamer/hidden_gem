@@ -57,6 +57,7 @@ dependencies:
   geoflutterfire_plus: ^0.0.33
   intl: ^0.20.2
   rxdart: ^0.28.0
+  theme_maker: ^1.0.4
 
 dev_dependencies:
   flutter_test:
