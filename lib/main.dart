@@ -22,7 +22,7 @@ Future<void> main() async {
 
   runApp(
     StreamProvider<User?>.value(
-      value: AuthService().userStream,
+        value: AuthService.userStream,
       initialData: null,
       child: MyApp()
     )

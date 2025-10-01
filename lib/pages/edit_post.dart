@@ -23,7 +23,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 class EditPost extends StatefulWidget {
   final User user;
   Post post;
-  ImageService imageService = ImageService();
 
   EditPost({super.key, required this.user, required this.post});
 
@@ -225,7 +224,7 @@ class _EditPostState extends State<EditPost> {
             uploadImages: false,
             uploadFunction: (User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) {
               Post newPost = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: widget.post.imageIds, isPublic: isPublic, postId: widget.post.postId);
-              PostsService().updatePost(newPost);
+              PostsService.updatePost(newPost);
             },
           )
       ));
@@ -303,7 +302,7 @@ class _EditPostState extends State<EditPost> {
 
   Widget _buildCarouselSlider(BuildContext context) {
     return FutureBuilder(
-      future: widget.imageService.getImageUrls(widget.post.imageIds),
+      future: ImageService.getImageUrls(widget.post.imageIds),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

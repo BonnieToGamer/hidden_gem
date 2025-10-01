@@ -24,7 +24,6 @@ class CreatePost extends StatefulWidget {
 
 class _CreatePostState extends State<CreatePost> {
   final int _sizePerPage = 64;
-  static const int _gridWidth = 4;
 
   bool _loading = false;
   bool _loadingMore = false;
@@ -205,11 +204,12 @@ class _CreatePostState extends State<CreatePost> {
 
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _gridWidth,
+        crossAxisCount: galleryGridWidth,
       ),
       itemCount: _entities!.length,
       itemBuilder: (BuildContext context, int index) {
-        if (index == _entities!.length - (_gridWidth * 2) && !_loadingMore && _hasMoreToLoad) {
+        if (index == _entities!.length - (galleryGridWidth * 2) &&
+            !_loadingMore && _hasMoreToLoad) {
           _loadMoreAssets();
         }
         final AssetEntity entity = _entities![index];

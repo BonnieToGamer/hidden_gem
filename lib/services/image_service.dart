@@ -4,17 +4,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
 class ImageService {
-  final storage = FirebaseStorage.instance;
-  final uuid = Uuid();
-  final Reference imagesRef;
+  static final _uuid = Uuid();
+  static final Reference _imagesRef = FirebaseStorage.instance.ref().child(
+      "images");
+  static final Map<String, String> _urlCache = {};
 
-  ImageService() : imagesRef = FirebaseStorage.instance.ref().child("images");
+  const ImageService._();
 
   // Uploads an image to Firebase Storage and returns its UUID.
   // Returns null if the upload fails.
-  Future<String?> uploadImage(File image) async {
-    final id = uuid.v4();
-    final imageRef = imagesRef.child(id);
+  static Future<String?> uploadImage(File image) async {
+    final id = _uuid.v4();
+    final imageRef = _imagesRef.child(id);
 
     try {
       await imageRef.putFile(image);
@@ -25,19 +26,25 @@ class ImageService {
     }
   }
 
-  Future<List<String>> getImageUrls(List<String> imageIds) async {
-    final urls = await Future.wait(
-      imageIds.map((id) async {
-        final ref = imagesRef.child(id);
-        return await ref.getDownloadURL();
-      }),
-    );
-    return urls;
+  static Future<List<String>> getImageUrls(List<String> imageIds) async {
+    return Future.wait(imageIds.map((id) => getImageUrl(id)));
   }
 
-  Future<void> deleteImage(String id) async {
+  static Future<String> getImageUrl(String imageId) async {
+    if (_urlCache.containsKey(imageId)) {
+      return _urlCache[imageId]!;
+    }
+
+    final ref = _imagesRef.child(imageId);
+    final url = await ref.getDownloadURL();
+
+    _urlCache[imageId] = url;
+    return url;
+  }
+
+  static Future<void> deleteImage(String id) async {
     try {
-      await imagesRef.child(id).delete();
+      await _imagesRef.child(id).delete();
     } catch (e) {
       print("Error deleting image: $e");
     }

@@ -31,11 +31,11 @@ class ViewPost extends StatelessWidget {
                     content: const Text('Are you sure you want to delete this post?'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(false), // Cancel
+                        onPressed: () => Navigator.of(context).pop(false),
                         child: const Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(true), // Confirm
+                        onPressed: () => Navigator.of(context).pop(true),
                         child: const Text('Delete', style: TextStyle(color: Colors.red)),
                       ),
                     ],
@@ -43,7 +43,7 @@ class ViewPost extends StatelessWidget {
                 );
 
                 if (confirm == true) {
-                  await PostsService().deletePost(post);
+                  await PostsService.deletePost(post);
                   Navigator.pop(context);
                 }
               },

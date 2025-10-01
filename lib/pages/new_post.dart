@@ -191,7 +191,7 @@ class _NewPostState extends State<NewPost> {
             images: widget.images,
             isPublic: _isPublic,
             uploadImages: true,
-            uploadFunction: PostsService().createPost,
+            uploadFunction: PostsService.createPost,
           )
       ));
     }

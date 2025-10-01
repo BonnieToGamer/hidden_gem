@@ -8,14 +8,18 @@ import 'package:rxdart/rxdart.dart';
 
 // REFACTOR: make it static no reason to make instances
 class PostsService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final String _collectionPath = "posts";
+  static final FirebaseFirestore _db = FirebaseFirestore.instance;
+  static final String _collectionPath = "posts";
 
-  Future<void> addPost(Post post) async {
+  const PostsService._();
+
+  static Future<void> addPost(Post post) async {
     await _db.collection(_collectionPath).add(post.toMap());
   }
 
-  Future<void> createPost(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) async {
+  static Future<void> createPost(User author, String name, String description,
+      GeoFirePoint point, Timestamp timestamp, List<String> imageIds,
+      bool isPublic) async {
     try {
       final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: imageIds, isPublic: isPublic);
       await _db.collection(_collectionPath).add(post.toMap());
@@ -24,7 +28,7 @@ class PostsService {
     }
   }
 
-  Stream<List<Post>> getPosts(String userId) {
+  static Stream<List<Post>> getPosts(String userId) {
     // Query public posts
     final publicStream = _db
         .collection('posts')
@@ -57,7 +61,7 @@ class PostsService {
 
   // updates a post
   // returns true if it succeeded otherwise false.
-  Future<bool> updatePost(Post post) async {
+  static Future<bool> updatePost(Post post) async {
     try {
       await _db.collection(_collectionPath).doc(post.postId).update(post.toMap());
       return true;
@@ -67,11 +71,10 @@ class PostsService {
     }
   }
 
-  Future<bool> deletePost(Post post) async {
+  static Future<bool> deletePost(Post post) async {
     try {
-      final imageService = ImageService();
       for (String id in post.imageIds) {
-        await imageService.deleteImage(id);
+        await ImageService.deleteImage(id);
       }
 
       await _db.collection(_collectionPath).doc(post.postId).delete();

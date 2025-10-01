@@ -4,6 +4,8 @@ import 'package:hidden_gem/constants.dart';
 // https://github.com/Mauro124/flutter_map_osrm/
 
 class GeolocatorService {
+  const GeolocatorService._();
+
   static Future<bool> checkPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {

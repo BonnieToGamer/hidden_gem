@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 
 class PostWidget extends StatefulWidget {
   final Post post;
-  final ImageService imageService = ImageService();
 
   PostWidget({super.key, required this.post});
 
@@ -22,7 +21,7 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   void initState() {
     super.initState();
-    _imageUrlsFuture = widget.imageService.getImageUrls(widget.post.imageIds);
+    _imageUrlsFuture = ImageService.getImageUrls(widget.post.imageIds);
   }
 
   @override

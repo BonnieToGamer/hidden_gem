@@ -18,7 +18,6 @@ class UploadPost extends StatefulWidget {
   final LatLng point;
   final List<File> images;
   final bool isPublic;
-  final imageService = ImageService();
   final bool uploadImages;
   final Function(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) uploadFunction;
 
@@ -58,7 +57,7 @@ class _UploadPostState extends State<UploadPost> {
           _statusText = "Uploading image ${index + 1} of $maxIndex";
         });
 
-        String? result = await widget.imageService.uploadImage(image);
+        String? result = await ImageService.uploadImage(image);
         if (result == null) {
           showToast("Failed to upload one of the images");
           return;

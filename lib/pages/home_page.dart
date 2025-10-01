@@ -12,7 +12,6 @@ import 'package:latlong2/latlong.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
-  final PostsService postsService = PostsService();
 
   HomePage({
     super.key,
@@ -37,7 +36,8 @@ class _HomePageState extends State<HomePage> {
   // TODO: filters on e.g newly made posts
   Widget _homePage() {
     return StreamBuilder<List<Post>>(
-      stream: widget.postsService.getPosts(widget.user.uid),
+      // TODO: make this actually get all posts and not just the users own
+        stream: PostsService.getPosts(widget.user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox.shrink();
