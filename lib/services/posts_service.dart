@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/image_service.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PostsService {
@@ -17,12 +15,25 @@ class PostsService {
     await _db.collection(_collectionPath).add(post.toMap());
   }
 
-  static Future<void> createPost(UserProfileInfo author, String name,
-      String description,
-      GeoFirePoint point, Timestamp timestamp, List<String> imageIds,
-      bool isPublic) async {
+  static Future<void> createPost(
+    UserProfileInfo author,
+    String name,
+    String description,
+    GeoFirePoint point,
+    Timestamp timestamp,
+    List<String> imageIds,
+    bool isPublic,
+  ) async {
     try {
-      final post = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: imageIds, isPublic: isPublic);
+      final post = Post(
+        authorId: author.uid,
+        name: name,
+        description: description,
+        point: point,
+        timestamp: timestamp,
+        imageIds: imageIds,
+        isPublic: isPublic,
+      );
       await _db.collection(_collectionPath).add(post.toMap());
     } catch (e) {
       print("Error in createPost $e");
@@ -38,23 +49,22 @@ class PostsService {
         .snapshots();
 
     // Query posts by current user
-      final ownStream = _db
-          .collection('posts')
-          .where('authorId', isEqualTo: userId)
-          .orderBy('timestamp', descending: true)
-          .snapshots();
+    final ownStream = _db
+        .collection('posts')
+        .where('authorId', isEqualTo: userId)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
 
     return Rx.combineLatest2<QuerySnapshot, QuerySnapshot, List<Post>>(
       publicStream,
       ownStream,
       (publicSnap, ownSnap) {
-        final allDocs = [
-          ...publicSnap.docs,
-          ...ownSnap.docs,
-        ];
+        final allDocs = [...publicSnap.docs, ...ownSnap.docs];
 
         // Remove duplicates by ID
-        final uniqueDocs = {for (var doc in allDocs) doc.id: doc}.values.toList();
+        final uniqueDocs = {
+          for (var doc in allDocs) doc.id: doc,
+        }.values.toList();
         return uniqueDocs.map((doc) => Post.fromFirestore(doc)).toList();
       },
     );
@@ -68,15 +78,20 @@ class PostsService {
         .orderBy('timestamp', descending: true)
         .snapshots();
 
-    return ownStream.map((snapshot) =>
-        snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList());
+    return ownStream.map(
+      (snapshot) =>
+          snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList(),
+    );
   }
 
   // updates a post
   // returns true if it succeeded otherwise false.
   static Future<bool> updatePost(Post post) async {
     try {
-      await _db.collection(_collectionPath).doc(post.postId).update(post.toMap());
+      await _db
+          .collection(_collectionPath)
+          .doc(post.postId)
+          .update(post.toMap());
       return true;
     } catch (e) {
       print("Error updating post: $e");

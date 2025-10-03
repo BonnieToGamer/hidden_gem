@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
@@ -73,9 +72,8 @@ class _UserProfileState extends State<UserProfile> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ViewPost(
-                                  post: posts[index],
-                                ),
+                                builder: (context) =>
+                                    ViewPost(post: posts[index]),
                               ),
                             );
                           },
@@ -103,7 +101,7 @@ class _UserProfileState extends State<UserProfile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.avatar ?? ""),
+                backgroundImage: NetworkImage(widget.user.avatar),
                 radius: 40,
               ),
               SizedBox(width: 20),

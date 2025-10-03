@@ -1,8 +1,5 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:camera/camera.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,7 +10,6 @@ import 'package:hidden_gem/pages/pick_on_map.dart';
 import 'package:hidden_gem/pages/upload_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
-import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -182,10 +178,10 @@ class _NewPostState extends State<NewPost> {
                     }
 
                     return null;
-            },
-            enabled: false,
-            controller: _geoController,
-          ),
+                  },
+                  enabled: false,
+                  controller: _geoController,
+                ),
         ],
       ),
     );

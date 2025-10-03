@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:camera/camera.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/pages/new_post.dart';
@@ -10,7 +8,6 @@ import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:provider/provider.dart';
 
 // https://pub.dev/packages/photo_manager/example
 
@@ -51,7 +48,7 @@ class _CreatePostState extends State<CreatePost> {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
     if (!mounted) return;
-    
+
     if (!ps.hasAccess) {
       setState(() {
         _loading = false;
@@ -63,13 +60,13 @@ class _CreatePostState extends State<CreatePost> {
 
     final PMFilter filter = FilterOptionGroup(
       imageOption: const FilterOption(
-        sizeConstraint: SizeConstraint(ignoreSize: true)
-      )
+        sizeConstraint: SizeConstraint(ignoreSize: true),
+      ),
     );
 
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
       onlyAll: true,
-      filterOption: filter
+      filterOption: filter,
     );
 
     if (!mounted) return;
@@ -89,8 +86,8 @@ class _CreatePostState extends State<CreatePost> {
 
     _totalEntitiesCount = await _path!.assetCountAsync;
     final List<AssetEntity> entities = await _path!.getAssetListPaged(
-        page: 0,
-        size: _sizePerPage
+      page: 0,
+      size: _sizePerPage,
     );
 
     if (!mounted) return;
@@ -105,8 +102,8 @@ class _CreatePostState extends State<CreatePost> {
   // Load more images.
   Future<void> _loadMoreAssets() async {
     final List<AssetEntity> entities = await _path!.getAssetListPaged(
-        page: _page + 1,
-        size: _sizePerPage
+      page: _page + 1,
+      size: _sizePerPage,
     );
 
     if (!mounted) return;
@@ -127,74 +124,76 @@ class _CreatePostState extends State<CreatePost> {
   // State for selecting images from gallery.
   Scaffold selectImagesState() {
     return Scaffold(
-    appBar: AppBar(
-      title: Text("Select up to $maxImagesPerPost images."),
-    ),
-    body: Column(
-      verticalDirection: VerticalDirection.down,
-      children: [
-        Expanded(
-            child: _buildGallery()
-        )
-      ]
-    ),
-        bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
-    floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    floatingActionButton: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
+      appBar: AppBar(title: Text("Select up to $maxImagesPerPost images.")),
+      body: Column(
+        verticalDirection: VerticalDirection.down,
+        children: [Expanded(child: _buildGallery())],
+      ),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => TakePicture()));
-            },
-            child: Icon(
-                Icons.camera_alt
-            )
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 100),
-            transitionBuilder: (child, animation) {
-              return ScaleTransition(
-                scale: animation,
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
-            child: _totalSelectedImages >= 1
-              ? ElevatedButton(
-                key: ValueKey("sendBtn"),
-                onPressed: () async {
-                  List<File> images = [];
-                  if (_entities != null) {
-                    for (final ent in _entities!) {
-                      final int index = _entities!.indexOf(ent);
-                      if (_selectedGalleryImages.containsKey(index) == false || _selectedGalleryImages[index] == false) continue;
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TakePicture()),
+                );
+              },
+              child: Icon(Icons.camera_alt),
+            ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 100),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(opacity: animation, child: child),
+                );
+              },
+              child: _totalSelectedImages >= 1
+                  ? ElevatedButton(
+                      key: ValueKey("sendBtn"),
+                      onPressed: () async {
+                        List<File> images = [];
+                        if (_entities != null) {
+                          for (final ent in _entities!) {
+                            final int index = _entities!.indexOf(ent);
+                            if (_selectedGalleryImages.containsKey(index) ==
+                                    false ||
+                                _selectedGalleryImages[index] == false) {
+                              continue;
+                            }
 
-                      print("Key $index exists? ${_selectedGalleryImages.containsKey(index)}");
+                            print(
+                        "Key $index exists? ${_selectedGalleryImages
+                            .containsKey(index)}",
+                      );
 
-                      final file = await ent.file;
-                      if (file != null) {
-                        images.add(file);
-                      }
-                    }
-                  }
+                            final file = await ent.file;
+                            if (file != null) {
+                              images.add(file);
+                            }
+                          }
+                        }
 
-                  Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => NewPost(images: images)));
+                        Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewPost(images: images),
+                    ),
+                  );
                 },
                 child: Icon(Icons.send),
               )
-              : const SizedBox.shrink(key: ValueKey("empty"))
-          ),
-        ]
+                  : const SizedBox.shrink(key: ValueKey("empty")),
+            ),
+          ],
+        ),
       ),
-    )
-  );
+    );
   }
 
   // Build the gallery widget.
@@ -210,7 +209,8 @@ class _CreatePostState extends State<CreatePost> {
       itemCount: _entities!.length,
       itemBuilder: (BuildContext context, int index) {
         if (index == _entities!.length - (galleryGridWidth * 2) &&
-            !_loadingMore && _hasMoreToLoad) {
+            !_loadingMore &&
+            _hasMoreToLoad) {
           _loadMoreAssets();
         }
         final AssetEntity entity = _entities![index];

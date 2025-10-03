@@ -1,11 +1,6 @@
-import 'dart:io';
-import 'dart:math';
-
-import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
@@ -16,16 +11,15 @@ import 'package:hidden_gem/pages/upload_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
-import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {
-  Post post;
+  final Post post;
 
-  EditPost({super.key, required this.post});
+  const EditPost({super.key, required this.post});
 
   @override
   State<StatefulWidget> createState() => _EditPostState();
@@ -215,24 +209,43 @@ class _EditPostState extends State<EditPost> {
         return;
       }
 
-      Navigator.push(context, MaterialPageRoute(
-        builder: (context) =>
-          UploadPost(
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UploadPost(
             user: UserProfileInfo.fromUser(user),
             name: _nameController.text,
             description: _descriptionController.text,
             point: _selectedPosition!,
-            images: [], // TODO: maybe in the future
+            images: [],
+            // TODO: maybe in the future
             isPublic: _isPublic,
             uploadImages: false,
-            uploadFunction: (UserProfileInfo author, String name,
-                String description, GeoFirePoint point, Timestamp timestamp,
-                List<String> imageIds, bool isPublic) {
-              Post newPost = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: widget.post.imageIds, isPublic: isPublic, postId: widget.post.postId);
-              PostsService.updatePost(newPost);
-            },
-          )
-      ));
+            uploadFunction:
+                (
+                  UserProfileInfo author,
+                  String name,
+                  String description,
+                  GeoFirePoint point,
+                  Timestamp timestamp,
+                  List<String> imageIds,
+                  bool isPublic,
+                ) {
+                  Post newPost = Post(
+                    authorId: author.uid,
+                    name: name,
+                    description: description,
+                    point: point,
+                    timestamp: timestamp,
+                    imageIds: widget.post.imageIds,
+                    isPublic: isPublic,
+                    postId: widget.post.postId,
+                  );
+                  PostsService.updatePost(newPost);
+                },
+          ),
+        ),
+      );
     }
   }
 

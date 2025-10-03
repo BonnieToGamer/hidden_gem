@@ -33,8 +33,10 @@ class AuthService {
 
   static Future<User?> signInUser(String email, String password) async {
     try {
-      final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       return credential.user;
     } on FirebaseAuthException catch (e) {
@@ -61,7 +63,8 @@ class AuthService {
       );
 
       final userCredential = await FirebaseAuth.instance.signInWithCredential(
-          credential);
+        credential,
+      );
 
       return userCredential.user;
     } catch (e) {

@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
-import 'package:hidden_gem/pages/view_user_profile.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
 import 'package:intl/intl.dart';
@@ -10,14 +9,13 @@ import 'package:intl/intl.dart';
 class PostWidget extends StatefulWidget {
   final Post post;
 
-  PostWidget({super.key, required this.post});
+  const PostWidget({super.key, required this.post});
 
   @override
   State<PostWidget> createState() => _PostWidgetState();
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  final CarouselController _controller = CarouselController();
   late Future<List<String>> _imageUrlsFuture;
   late UserProfileInfo _author;
   int _current = 0;
@@ -116,36 +114,33 @@ class _PostWidgetState extends State<PostWidget> {
                 ),
                 ?(widget.post.imageIds.length > 1)
                     ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: widget.post.imageIds
-                      .asMap()
-                      .entries
-                      .map((entry,) {
-                    return Container(
-                      width: 8.0,
-                      height: 8.0,
-                      margin: EdgeInsets.symmetric(
-                        vertical: 8.0,
-                        horizontal: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color:
-                        (Theme
-                            .of(context)
-                            .brightness ==
-                            Brightness.dark
-                            ? Colors.white
-                            : Colors.black)
-                            .withValues(
-                          alpha: _current == entry.key
-                              ? 0.9
-                              : 0.4,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                )
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: widget.post.imageIds.asMap().entries.map((
+                          entry,
+                        ) {
+                          return Container(
+                            width: 8.0,
+                            height: 8.0,
+                            margin: EdgeInsets.symmetric(
+                              vertical: 8.0,
+                              horizontal: 4.0,
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  (Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : Colors.black)
+                                      .withValues(
+                                        alpha: _current == entry.key
+                                            ? 0.9
+                                            : 0.4,
+                                      ),
+                            ),
+                          );
+                        }).toList(),
+                      )
                     : null,
               ],
             ),
@@ -161,9 +156,9 @@ class _PostWidgetState extends State<PostWidget> {
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => ViewUserProfile(user: user)))
                         },
                         style: TextButton.styleFrom(
-                            padding: const EdgeInsets.only(right: 5.0),
-                            minimumSize: Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                          padding: const EdgeInsets.only(right: 5.0),
+                          minimumSize: Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
                           _author.name,

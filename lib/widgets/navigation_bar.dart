@@ -1,18 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hidden_gem/pages/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/own_user_profile.dart';
-import 'package:provider/provider.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
 
-  const CustomNavigationBar({
-    super.key,
-    required this.currentIndex
-  });
+  const CustomNavigationBar({super.key, required this.currentIndex});
 
   void _move(BuildContext context, Widget newWidget) {
     Navigator.pushReplacement(
@@ -20,8 +14,8 @@ class CustomNavigationBar extends StatelessWidget {
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) => newWidget,
         transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero
-      )
+        reverseTransitionDuration: Duration.zero,
+      ),
     );
   }
 
@@ -42,9 +36,21 @@ class CustomNavigationBar extends StatelessWidget {
       },
 
       destinations: const <Widget>[
-        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "home"),
-        NavigationDestination(icon: Icon(Icons.add_outlined), selectedIcon: Icon(Icons.add), label: "add post"),
-        NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: "profile")
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: "home",
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.add_outlined),
+          selectedIcon: Icon(Icons.add),
+          label: "add post",
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: "profile",
+        ),
       ],
     );
   }

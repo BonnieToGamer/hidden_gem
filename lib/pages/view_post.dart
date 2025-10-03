@@ -20,30 +20,35 @@ class ViewPost extends StatelessWidget {
       appBar: AppBar(
         title: Text("View Post"),
         actions: [
-          ?(isOwnPost) ?
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Confirm Delete'),
-                    content: const Text('Are you sure you want to delete this post?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
-                  ),
-                );
+          ?(isOwnPost)
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    onTap: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Confirm Delete'),
+                          content: const Text(
+                            'Are you sure you want to delete this post?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
 
-                if (confirm == true) {
+                      if (confirm == true) {
                   await PostsService.deletePost(post);
                   Navigator.pop(context);
                 }
@@ -51,19 +56,23 @@ class ViewPost extends StatelessWidget {
               child: Icon(Icons.delete),
             ),
           )
-          : null,
-          ?(isOwnPost) ? 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => EditPost(post: post)));
-                },
-                child: Icon(Icons.edit),
-              ),
-            )
-            : null,
+              : null,
+          ?(isOwnPost)
+              ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPost(post: post),
+                  ),
+                );
+              },
+              child: Icon(Icons.edit),
+            ),
+          )
+              : null,
         ],
       ),
       body: PostWidget(post: post),

@@ -1,5 +1,4 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:hidden_gem/constants.dart';
 
 // https://github.com/Mauro124/flutter_map_osrm/
 
@@ -10,7 +9,8 @@ class GeolocatorService {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         Geolocator.openAppSettings();
         return false;
       }
@@ -19,15 +19,19 @@ class GeolocatorService {
     return true;
   }
 
-  static Future<Position> getCurrentLocation({LocationAccuracy accuracy = LocationAccuracy.high}) async {
+  static Future<Position> getCurrentLocation({
+    LocationAccuracy accuracy = LocationAccuracy.high,
+  }) async {
     if (!await checkPermission()) {
       throw Exception("Location services are disabled");
     }
 
-    Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(
-      accuracy: accuracy,
-      distanceFilter: 10
-    ));
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: LocationSettings(
+        accuracy: accuracy,
+        distanceFilter: 10,
+      ),
+    );
     return position;
   }
 

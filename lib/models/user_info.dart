@@ -6,18 +6,26 @@ class UserProfileInfo {
   final String name;
   final String avatar;
 
-  UserProfileInfo(
-      {required this.uid, required this.name, required this.avatar});
+  UserProfileInfo({
+    required this.uid,
+    required this.name,
+    required this.avatar,
+  });
 
   factory UserProfileInfo.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return UserProfileInfo(
-        uid: data['uid'], name: data['name'], avatar: data['avatar']);
+      uid: data['uid'],
+      name: data['name'],
+      avatar: data['avatar'],
+    );
   }
 
   factory UserProfileInfo.fromUser(User user) {
-    return UserProfileInfo(uid: user.uid,
-        name: user.displayName ?? '',
-        avatar: user.photoURL ?? '');
+    return UserProfileInfo(
+      uid: user.uid,
+      name: user.displayName ?? '',
+      avatar: user.photoURL ?? '',
+    );
   }
 }

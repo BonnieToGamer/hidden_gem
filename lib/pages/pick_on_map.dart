@@ -6,7 +6,6 @@ import 'package:latlong2/latlong.dart';
 
 class PickOnMap extends StatefulWidget {
   final Function(LatLng) callback;
-  LatLng position = defaultLocation;
 
   PickOnMap({super.key, required this.callback});
 
@@ -15,6 +14,8 @@ class PickOnMap extends StatefulWidget {
 }
 
 class _PickOnMapState extends State<PickOnMap> {
+  LatLng position = defaultLocation;
+
   @override
   void initState() {
     super.initState();
@@ -27,7 +28,7 @@ class _PickOnMapState extends State<PickOnMap> {
       body: GemsMap(
         markers: [
           Marker(
-            point: widget.position,
+            point: position,
             rotate: true,
             child: Icon(
               Icons.location_pin,
@@ -38,14 +39,14 @@ class _PickOnMapState extends State<PickOnMap> {
         ],
         onTapCallback: (position) {
           setState(() {
-            widget.position = position;
+            position = position;
           });
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          widget.callback(widget.position);
+          widget.callback(position);
           Navigator.pop(context);
         },
         label: const Text("Pick location"),

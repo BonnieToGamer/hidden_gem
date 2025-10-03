@@ -63,9 +63,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '565253869773',
     projectId: 'hidden-gem-c971c',
     storageBucket: 'hidden-gem-c971c.firebasestorage.app',
-    androidClientId: '565253869773-5qfjoh6b4vao51246etnp07j3ko3th15.apps.googleusercontent.com',
-    iosClientId: '565253869773-enhqevdn1r5pn07td2lcqk6ipevvgf3n.apps.googleusercontent.com',
+    androidClientId:
+        '565253869773-5qfjoh6b4vao51246etnp07j3ko3th15.apps.googleusercontent.com',
+    iosClientId:
+        '565253869773-enhqevdn1r5pn07td2lcqk6ipevvgf3n.apps.googleusercontent.com',
     iosBundleId: 'com.example.hiddenGem',
   );
-
 }

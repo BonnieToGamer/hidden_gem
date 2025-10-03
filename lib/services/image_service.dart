@@ -24,8 +24,10 @@ class ImageService {
     }
   }
 
-  static Future<List<String>> getImageUrls(List<String> imageIds,
-      String path) async {
+  static Future<List<String>> getImageUrls(
+    List<String> imageIds,
+    String path,
+  ) async {
     return Future.wait(imageIds.map((id) => getImageUrl(id, path)));
   }
 

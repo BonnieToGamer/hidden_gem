@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/widgets/user_profile.dart';

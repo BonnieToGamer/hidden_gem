@@ -33,20 +33,21 @@ class GalleryImage extends StatelessWidget {
                 thumbnailFormat: option.format,
                 fit: BoxFit.cover,
               ),
-            )
+            ),
           ),
         ),
         Positioned(
           top: 2.0,
           left: 2.0,
           child: Icon(
-            selected ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+            selected
+                ? Icons.check_circle_rounded
+                : Icons.check_circle_outline_rounded,
             color: selected
                 ? Theme.of(context).primaryColor
                 : Theme.of(context).disabledColor.withValues(alpha: 0.6),
-
-          )
-        )
+          ),
+        ),
       ],
     );
   }
