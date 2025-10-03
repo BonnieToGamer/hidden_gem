@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/pages/view_post.dart';
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
 
         final posts = snapshot.data!;
         return GemsMap(
+          hasLocationPermission: GeolocatorService.hasLocationPermission,
           markers: posts.map((post) {
             return Marker(
               point: LatLng(
@@ -76,13 +78,18 @@ class _HomePageState extends State<HomePage> {
         }
 
         if (snapshot.hasError) {
-          return const Center(child: Text("There was an error"));
+          return const Center(
+              child: Text("There was an error getting location permission"));
         }
 
-        bool hasPermission = snapshot.data!;
+        if (snapshot.hasData && snapshot.data == false) {
+          final snackBar = SnackBar(
+              content: const Text(
+                  "Location permission denied, please enable for best experience")
+          );
 
-        if (!hasPermission) {
-          return const Center(child: Text("Permission denied"));
+          SchedulerBinding.instance.addPostFrameCallback((duration) =>
+              ScaffoldMessenger.of(context).showSnackBar(snackBar));
         }
 
         return _homePage();

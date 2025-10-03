@@ -5,17 +5,19 @@ import 'package:geolocator/geolocator.dart';
 class GeolocatorService {
   const GeolocatorService._();
 
+  static bool hasLocationPermission = false;
+
   static Future<bool> checkPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        Geolocator.openAppSettings();
         return false;
       }
     }
 
+    hasLocationPermission = true;
     return true;
   }
 
@@ -42,5 +44,9 @@ class GeolocatorService {
 
     Position? position = await Geolocator.getLastKnownPosition();
     return position;
+  }
+
+  static void openSettings() {
+    Geolocator.openAppSettings();
   }
 }

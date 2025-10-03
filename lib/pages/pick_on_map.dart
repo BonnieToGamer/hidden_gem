@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hidden_gem/constants.dart';
+import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -14,7 +15,7 @@ class PickOnMap extends StatefulWidget {
 }
 
 class _PickOnMapState extends State<PickOnMap> {
-  LatLng position = defaultLocation;
+  LatLng _position = defaultLocation;
 
   @override
   void initState() {
@@ -26,9 +27,10 @@ class _PickOnMapState extends State<PickOnMap> {
     return Scaffold(
       appBar: AppBar(title: const Text("Pick location on map")),
       body: GemsMap(
+        hasLocationPermission: GeolocatorService.hasLocationPermission,
         markers: [
           Marker(
-            point: position,
+            point: _position,
             rotate: true,
             child: Icon(
               Icons.location_pin,
@@ -39,14 +41,14 @@ class _PickOnMapState extends State<PickOnMap> {
         ],
         onTapCallback: (position) {
           setState(() {
-            position = position;
+            _position = position;
           });
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          widget.callback(position);
+          widget.callback(_position);
           Navigator.pop(context);
         },
         label: const Text("Pick location"),

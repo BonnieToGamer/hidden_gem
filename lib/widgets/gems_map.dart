@@ -9,8 +9,10 @@ import 'package:url_launcher/url_launcher.dart';
 class GemsMap extends StatefulWidget {
   final List<Marker>? markers;
   final Function(LatLng position)? onTapCallback;
+  final bool hasLocationPermission;
 
-  const GemsMap({super.key, this.markers, this.onTapCallback});
+  const GemsMap(
+      {super.key, this.markers, this.onTapCallback, required this.hasLocationPermission});
 
   @override
   State<StatefulWidget> createState() => _MapWidgetState();
@@ -29,6 +31,10 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
   }
 
   Future<void> _fetchLocation() async {
+    if (widget.hasLocationPermission == false) {
+      return;
+    }
+
     try {
       final lastPosition = await GeolocatorService.getLastLocation();
       if (lastPosition != null)
@@ -84,9 +90,10 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: userAgent,
         ),
-        if (_preciseLocation != null)
           MarkerLayer(markers: [
-            Marker(
+            ...?widget.markers,
+            ?(widget.hasLocationPermission && _preciseLocation != null)
+                ? Marker(
               point: _preciseLocation!,
               width: 40,
               height: 40,
@@ -94,8 +101,8 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
               child: CircleAvatar(
                 child: Icon(Icons.person),
               ),
-            ),
-            ...?widget.markers
+            )
+                : null,
           ]),
         RichAttributionWidget(
           attributions: [
