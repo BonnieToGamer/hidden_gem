@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:hidden_gem/models/like.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/image_service.dart';
@@ -126,6 +127,53 @@ class PostsService {
       print("Error deleting post: $e");
       return false;
     }
+  }
+
+  static DocumentSnapshot? lastDocument;
+
+  static void resetPagination() {
+    lastDocument = null;
+  }
+
+  static Future<List<Post>> getPagedPosts(String uid, {
+    int limit = 10,
+  }) async {
+    Query query = _db
+        .collection("posts")
+        .where("isPublic", isEqualTo: true)
+        .where("authorId", isNotEqualTo: uid)
+        .orderBy("timestamp", descending: true)
+        .limit(limit);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument!);
+    }
+
+    final querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      lastDocument = querySnapshot.docs.last;
+    }
+
+    return querySnapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+  }
+
+  static Future<void> likePost(Post post, String uid) async {
+    await _db.collection("likes").add(
+        Like(postId: post.postId!, userId: uid, timestamp: Timestamp.now())
+            .toMap());
+  }
+
+  static Stream<List<Like>> getLikeStatus(Post post, String uid) {
+    final ownStream = _db
+        .collection('likes')
+        .where('authorId', isEqualTo: uid)
+        .snapshots();
+
+    return ownStream.map(
+          (snapshot) =>
+          snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList(),
+    );
   }
 
   // make this actually work :(

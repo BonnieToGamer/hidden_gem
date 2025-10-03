@@ -1,15 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:hidden_gem/models/post.dart';
-import 'package:hidden_gem/pages/view_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
-import 'package:hidden_gem/widgets/gems_map.dart';
+import 'package:hidden_gem/widgets/feed.dart';
+import 'package:hidden_gem/widgets/home_map.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -18,7 +13,21 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum _HomeState { Map, Feed }
+
 class _HomePageState extends State<HomePage> {
+  _HomeState _state = _HomeState.Map;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,47 +38,74 @@ class _HomePageState extends State<HomePage> {
 
   // TODO: filters on e.g newly made posts
   Widget _homePage() {
-    final user = Provider.of<User>(context, listen: false);
+    Widget stateWidget;
 
-    return StreamBuilder<List<Post>>(
-      stream: PostsService.getAllPosts(user.uid),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return SizedBox.shrink();
-        }
+    if (_state == _HomeState.Map) {
+      stateWidget = HomeMap();
+    } else {
+      stateWidget = Feed();
+    }
 
-        final posts = snapshot.data!;
-        return GemsMap(
-          hasLocationPermission: GeolocatorService.hasLocationPermission,
-          markers: posts.map((post) {
-            return Marker(
-              point: LatLng(
-                post.point.geopoint.latitude,
-                post.point.geopoint.longitude,
-              ),
-              rotate: true,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewPost(post: post),
-                    ),
-                  );
-                },
-                child: Icon(
-                  Icons.location_pin,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
+    return Stack(
+      children: [
+        Expanded(child: stateWidget),
+        Align(alignment: Alignment(0, -0.85), child: _buildSwitcher()),
+      ],
     );
   }
 
-  FutureBuilder<bool> _checkPermission() {
+  Widget _buildSwitcher() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _switcherButton("Map", _HomeState.Map),
+        SizedBox(
+          height: 20,
+          child: VerticalDivider(
+            thickness: 2,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        _switcherButton("Feed", _HomeState.Feed),
+      ],
+    );
+  }
+
+  Widget _switcherButton(String text, _HomeState state) {
+    return SizedBox(
+      width: 64,
+      child: TextButton(
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: Size(0, 0),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        onPressed: () {
+          setState(() {
+            _state = state;
+          });
+        },
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 24,
+            color: (_state == state)
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).disabledColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _checkPermission() {
+    if (GeolocatorService.hasLocationPermission) {
+      return _homePage();
+    }
+
     return FutureBuilder(
       future: GeolocatorService.checkPermission(),
       builder: (context, snapshot) {
@@ -79,17 +115,20 @@ class _HomePageState extends State<HomePage> {
 
         if (snapshot.hasError) {
           return const Center(
-              child: Text("There was an error getting location permission"));
+            child: Text("There was an error getting location permission"),
+          );
         }
 
         if (snapshot.hasData && snapshot.data == false) {
           final snackBar = SnackBar(
-              content: const Text(
-                  "Location permission denied, please enable for best experience")
+            content: const Text(
+              "Location permission denied, please enable for best experience",
+            ),
           );
 
-          SchedulerBinding.instance.addPostFrameCallback((duration) =>
-              ScaffoldMessenger.of(context).showSnackBar(snackBar));
+          SchedulerBinding.instance.addPostFrameCallback(
+            (duration) => ScaffoldMessenger.of(context).showSnackBar(snackBar),
+          );
         }
 
         return _homePage();
