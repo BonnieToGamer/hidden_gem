@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   Widget _homePage() {
     return StreamBuilder<List<Post>>(
       // TODO: make this actually get all posts and not just the users own
-        stream: PostsService.getPosts(widget.user.uid),
+        stream: PostsService.getAllPosts(widget.user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox.shrink();

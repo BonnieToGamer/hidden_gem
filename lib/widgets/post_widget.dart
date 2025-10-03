@@ -1,7 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/pages/view_user_profile.dart';
 import 'package:hidden_gem/services/image_service.dart';
+import 'package:hidden_gem/services/user_service.dart';
 import 'package:intl/intl.dart';
 
 class PostWidget extends StatefulWidget {
@@ -16,12 +19,18 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget> {
   final CarouselController _controller = CarouselController();
   late Future<List<String>> _imageUrlsFuture;
+  late UserProfileInfo _author;
   int _current = 0;
 
   @override
   void initState() {
     super.initState();
-    _imageUrlsFuture = ImageService.getImageUrls(widget.post.imageIds);
+    _imageUrlsFuture = imageUrls();
+  }
+
+  Future<List<String>> imageUrls() async {
+    _author = await UserService.getUser(widget.post.authorId);
+    return ImageService.getImageUrls(widget.post.imageIds, "images");
   }
 
   @override
@@ -87,7 +96,7 @@ class _PostWidgetState extends State<PostWidget> {
                         },
                         child: Image.network(
                           url,
-                          fit: BoxFit.scaleDown,
+                          fit: BoxFit.contain,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) {
                               return child;
@@ -105,9 +114,13 @@ class _PostWidgetState extends State<PostWidget> {
                     );
                   }).toList(),
                 ),
-                ?(widget.post.imageIds.length > 1) ? Row(
+                ?(widget.post.imageIds.length > 1)
+                    ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: widget.post.imageIds.asMap().entries.map((entry) {
+                  children: widget.post.imageIds
+                      .asMap()
+                      .entries
+                      .map((entry,) {
                     return Container(
                       width: 8.0,
                       height: 8.0,
@@ -118,16 +131,22 @@ class _PostWidgetState extends State<PostWidget> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color:
-                            (Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.white
-                                    : Colors.black)
-                                .withValues(alpha:
-                                  _current == entry.key ? 0.9 : 0.4,
-                                ),
+                        (Theme
+                            .of(context)
+                            .brightness ==
+                            Brightness.dark
+                            ? Colors.white
+                            : Colors.black)
+                            .withValues(
+                          alpha: _current == entry.key
+                              ? 0.9
+                              : 0.4,
+                        ),
                       ),
                     );
                   }).toList(),
-                ) : null,
+                )
+                    : null,
               ],
             ),
             Padding(
@@ -135,9 +154,27 @@ class _PostWidgetState extends State<PostWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.post.name,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => ViewUserProfile(user: user)))
+                        },
+                        style: TextButton.styleFrom(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            minimumSize: Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                        ),
+                        child: Text(
+                          _author.name,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Text(
+                        widget.post.name,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   Text(widget.post.description),
                   Text(

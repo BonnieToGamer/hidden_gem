@@ -57,7 +57,7 @@ class _UploadPostState extends State<UploadPost> {
           _statusText = "Uploading image ${index + 1} of $maxIndex";
         });
 
-        String? result = await ImageService.uploadImage(image);
+        String? result = await ImageService.uploadImage(image, "images");
         if (result == null) {
           showToast("Failed to upload one of the images");
           return;

@@ -57,9 +57,7 @@ class _NewPostState extends State<NewPost> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text("New post"),
-      ),
+      appBar: AppBar(title: Text("New post")),
       body: Stack(
         children: [
           Positioned.fill(
@@ -75,80 +73,9 @@ class _NewPostState extends State<NewPost> {
                     _buildDivider(context),
                     _buildGemDescription(),
                     _buildDivider(context),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: _formPaddingHorizontal),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              FilledButton(
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PickOnMap(callback: (location) {
-                                    _setLocation(location);
-                                  })));
-                                },
-                                child: const Text("Pick on map")
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text("-or-"),
-                              ),
-                              FilledButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      _loadingCurrentLocation = true;
-                                    });
-                                    final highAccuracyPosition = await GeolocatorService.getCurrentLocation(accuracy: LocationAccuracy.high);
-                                    LatLng location = LatLng(highAccuracyPosition.latitude, highAccuracyPosition.longitude);
-                                    _setLocation(location);
-                                    setState(() {
-                                      _loadingCurrentLocation = false;
-                                    });
-                                  },
-                                  child: const Text("Pick current location")
-                              ),
-                            ],
-                          ),
-                          _loadingCurrentLocation ? Padding(
-                            padding: EdgeInsets.all(_formPaddingHorizontal),
-                            child: const CircularProgressIndicator(),
-                          ) : TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: _formDecoration("No location selected"),
-                            style: _formStyle(),
-                            validator: (String? text) {
-                              if (text == null || text.isEmpty) {
-                                return "Please select a location";
-                              }
-
-                              return null;
-                            },
-                            enabled: false,
-                            controller: _geoController,
-                          )
-                        ],
-                      ),
-                    ),
+                    _buildLocationPicker(context),
                     _buildDivider(context),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: _formPaddingHorizontal),
-                      child:Row(
-                        children: [
-                          Text("Is post public?"),
-                          Checkbox(
-                            value: _isPublic,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isPublic = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      )
-                    )
+                    _buildPublicSelector(),
                   ],
                 ),
               ),
@@ -161,15 +88,104 @@ class _NewPostState extends State<NewPost> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton(
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(),
-                ),
+                style: FilledButton.styleFrom(shape: RoundedRectangleBorder()),
                 onPressed: _createPost,
-                child: const Text("Submit")
-              )
+                child: const Text("Submit"),
+              ),
             ),
-          )
-        ]
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding _buildPublicSelector() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: _formPaddingHorizontal),
+      child: Row(
+        children: [
+          Text("Is post public?"),
+          Checkbox(
+            value: _isPublic,
+            onChanged: (bool? value) {
+              setState(() {
+                _isPublic = value!;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding _buildLocationPicker(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: _formPaddingHorizontal),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PickOnMap(
+                        callback: (location) {
+                          _setLocation(location);
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("Pick on map"),
+              ),
+              const Padding(padding: EdgeInsets.all(8.0), child: Text("-or-")),
+              FilledButton(
+                onPressed: () async {
+                  setState(() {
+                    _loadingCurrentLocation = true;
+                  });
+                  final highAccuracyPosition =
+                      await GeolocatorService.getCurrentLocation(
+                        accuracy: LocationAccuracy.high,
+                      );
+                  LatLng location = LatLng(
+                    highAccuracyPosition.latitude,
+                    highAccuracyPosition.longitude,
+                  );
+                  _setLocation(location);
+                  setState(() {
+                    _loadingCurrentLocation = false;
+                  });
+                },
+                child: const Text("Pick current location"),
+              ),
+            ],
+          ),
+          _loadingCurrentLocation
+              ? Padding(
+                  padding: EdgeInsets.all(_formPaddingHorizontal),
+                  child: const CircularProgressIndicator(),
+                )
+              : TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: _formDecoration("No location selected"),
+                  style: _formStyle(),
+                  validator: (String? text) {
+                    if (text == null || text.isEmpty) {
+                      return "Please select a location";
+                    }
+
+                    return null;
+            },
+            enabled: false,
+            controller: _geoController,
+          ),
+        ],
       ),
     );
   }
@@ -181,9 +197,10 @@ class _NewPostState extends State<NewPost> {
         return;
       }
 
-      Navigator.push(context, MaterialPageRoute(
-        builder: (context) =>
-          UploadPost(
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UploadPost(
             user: widget.user,
             name: _nameController.text,
             description: _descriptionController.text,
@@ -192,19 +209,25 @@ class _NewPostState extends State<NewPost> {
             isPublic: _isPublic,
             uploadImages: true,
             uploadFunction: PostsService.createPost,
-          )
-      ));
+          ),
+        ),
+      );
     }
   }
 
   void _setLocation(LatLng location) {
     setState(() {
       _selectedPosition = location;
-      _geoController.text = "Location: ${_selectedPosition!.latitude.toStringAsFixed(6)}, ${_selectedPosition!.longitude.toStringAsFixed(6)}";
+      _geoController.text =
+          "Location: ${_selectedPosition!.latitude.toStringAsFixed(6)}, ${_selectedPosition!.longitude.toStringAsFixed(6)}";
     });
   }
 
-  Divider _buildDivider(BuildContext context) => Divider(height: 1.0, thickness: 0.1, color: Theme.of(context).colorScheme.primary,);
+  Divider _buildDivider(BuildContext context) => Divider(
+    height: 1.0,
+    thickness: 0.1,
+    color: Theme.of(context).primaryColor,
+  );
 
   Widget _buildGemName() {
     return Padding(
@@ -252,16 +275,11 @@ class _NewPostState extends State<NewPost> {
   }
 
   TextStyle _formStyle() {
-    return TextStyle(
-          fontSize: 14
-      );
+    return TextStyle(fontSize: 14);
   }
 
   InputDecoration _formDecoration(String hintText) {
-    return InputDecoration(
-        border: InputBorder.none,
-        hintText: hintText,
-      );
+    return InputDecoration(border: InputBorder.none, hintText: hintText);
   }
 
   CarouselSlider _buildCarouselSlider(BuildContext context) {
@@ -273,16 +291,12 @@ class _NewPostState extends State<NewPost> {
         height: 300,
         disableCenter: true,
         enlargeCenterPage: false,
-
       ),
       items: widget.images.map((img) {
         return Container(
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.symmetric(horizontal: 5.0),
-          child: Image.file(
-              File(img.path),
-              fit: BoxFit.scaleDown
-          )
+          child: Image.file(File(img.path), fit: BoxFit.scaleDown),
         );
       }).toList(),
     );

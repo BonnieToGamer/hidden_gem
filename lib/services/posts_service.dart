@@ -6,7 +6,6 @@ import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
-// REFACTOR: make it static no reason to make instances
 class PostsService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
   static final String _collectionPath = "posts";
@@ -28,7 +27,7 @@ class PostsService {
     }
   }
 
-  static Stream<List<Post>> getPosts(String userId) {
+  static Stream<List<Post>> getAllPosts(String userId) {
     // Query public posts
     final publicStream = _db
         .collection('posts')
@@ -59,6 +58,18 @@ class PostsService {
     );
   }
 
+  static Stream<List<Post>> getOwnPosts(String userId) {
+    // Query posts by current user
+    final ownStream = _db
+        .collection('posts')
+        .where('authorId', isEqualTo: userId)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+
+    return ownStream.map((snapshot) =>
+        snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList());
+  }
+
   // updates a post
   // returns true if it succeeded otherwise false.
   static Future<bool> updatePost(Post post) async {
@@ -74,7 +85,7 @@ class PostsService {
   static Future<bool> deletePost(Post post) async {
     try {
       for (String id in post.imageIds) {
-        await ImageService.deleteImage(id);
+        await ImageService.deleteImage(id, "images");
       }
 
       await _db.collection(_collectionPath).doc(post.postId).delete();

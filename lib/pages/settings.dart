@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/sign_in_screen.dart';
-import 'package:hidden_gem/services/google_auth_service.dart';
+import 'package:hidden_gem/pages/sign_in.dart';
+import 'package:hidden_gem/services/auth_service.dart';
 
 class Settings extends StatelessWidget {
   Settings({super.key});
@@ -14,11 +14,11 @@ class Settings extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            await GoogleAuthService.signOut();
+            await AuthService.signOut();
 
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => SignInScreen()),
+              MaterialPageRoute(builder: (_) => SignIn()),
               (_) => false,
             );
           },

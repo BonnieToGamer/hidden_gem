@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/sign_in_screen.dart';
+import 'package:hidden_gem/pages/sign_in.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 
 class Authenticate extends StatelessWidget {
@@ -25,7 +25,7 @@ class Authenticate extends StatelessWidget {
             return forward(user);
           }
 
-          return SignInScreen();
+          return SignIn();
         }
     );
   }

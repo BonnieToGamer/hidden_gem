@@ -302,7 +302,7 @@ class _EditPostState extends State<EditPost> {
 
   Widget _buildCarouselSlider(BuildContext context) {
     return FutureBuilder(
-      future: ImageService.getImageUrls(widget.post.imageIds),
+      future: ImageService.getImageUrls(widget.post.imageIds, "images"),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

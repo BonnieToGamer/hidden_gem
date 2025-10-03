@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hidden_gem/pages/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
-import 'package:hidden_gem/pages/user_profile.dart';
+import 'package:hidden_gem/pages/own_user_profile.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -40,7 +40,7 @@ class CustomNavigationBar extends StatelessWidget {
         } else if (index == 1) {
           _move(context, CreatePost(user: user));
         } else if (index == 2) {
-          _move(context, UserProfile(user: user));
+          _move(context, OwnUserProfile(user: user));
         }
       },
 
