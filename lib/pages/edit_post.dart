@@ -12,7 +12,6 @@ import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 
@@ -205,7 +204,13 @@ class _EditPostState extends State<EditPost> {
 
     if (_formKey.currentState!.validate()) {
       if (_selectedPosition == null) {
-        showToast("Selected position was null");
+        final snackBar = SnackBar(
+            content: const Text("Selected position was null")
+        );
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
 

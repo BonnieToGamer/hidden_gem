@@ -6,7 +6,6 @@ import 'package:hidden_gem/pages/new_post.dart';
 import 'package:hidden_gem/pages/take_picture.dart';
 import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 // https://pub.dev/packages/photo_manager/example
@@ -54,7 +53,11 @@ class _CreatePostState extends State<CreatePost> {
         _loading = false;
       });
 
-      showToast("Permission was denied");
+      final snackBar = SnackBar(content: const Text("Permission was denied"));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 
@@ -76,7 +79,11 @@ class _CreatePostState extends State<CreatePost> {
         _loading = false;
       });
 
-      showToast("No images found");
+      final snackBar = SnackBar(content: const Text("No images found"));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 

@@ -6,7 +6,6 @@ import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
 import 'package:hidden_gem/utils.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
-import 'package:oktoast/oktoast.dart';
 
 class CreateUser extends StatefulWidget {
   final String name;
@@ -55,7 +54,13 @@ class _CreateUserState extends State<CreateUser> {
     if (!mounted) return;
 
     if (user == null) {
-      OKToast(child: Text("Could not create account"));
+      final snackBar = SnackBar(
+          content: const Text("Could not create account")
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 
@@ -75,7 +80,13 @@ class _CreateUserState extends State<CreateUser> {
     final id = await ImageService.uploadImage(file, "avatars");
 
     if (id == null) {
-      OKToast(child: Text("Could not create account"));
+      final snackBar = SnackBar(
+          content: const Text("Could not create account")
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 

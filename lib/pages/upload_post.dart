@@ -9,7 +9,6 @@ import 'package:hidden_gem/pages/authenticate.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:oktoast/oktoast.dart';
 
 class UploadPost extends StatefulWidget {
   final UserProfileInfo user;
@@ -77,7 +76,13 @@ class _UploadPostState extends State<UploadPost> {
 
         String? result = await ImageService.uploadImage(image, "images");
         if (result == null) {
-          showToast("Failed to upload one of the images");
+          final snackBar = SnackBar(
+              content: const Text("Failed to upload one of the images")
+          );
+
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
           return;
         }
         imageIds.add(result);

@@ -45,7 +45,6 @@ dependencies:
   cloud_firestore: ^6.0.1
   photo_manager: ^3.7.1
   transparent_image: ^2.0.1
-  oktoast: ^3.4.0
   photo_manager_image_provider: ^2.2.0
   camera: ^0.11.2
   path_provider: ^2.1.5
