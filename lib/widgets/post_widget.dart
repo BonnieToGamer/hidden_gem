@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/pages/view_user_profile.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
 import 'package:intl/intl.dart';
@@ -152,8 +153,10 @@ class _PostWidgetState extends State<PostWidget> {
                   Row(
                     children: [
                       TextButton(
-                        onPressed: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) => ViewUserProfile(user: user)))
+                        onPressed: () async {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) =>
+                                  ViewUserProfile(user: _author)));
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.only(right: 5.0),

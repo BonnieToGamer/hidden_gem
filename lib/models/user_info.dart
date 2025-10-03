@@ -15,7 +15,7 @@ class UserProfileInfo {
   factory UserProfileInfo.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return UserProfileInfo(
-      uid: data['uid'],
+      uid: doc.id,
       name: data['name'],
       avatar: data['avatar'],
     );

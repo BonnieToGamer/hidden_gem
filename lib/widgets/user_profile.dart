@@ -4,32 +4,30 @@ import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/view_post.dart';
 import 'package:hidden_gem/services/image_service.dart';
-import 'package:hidden_gem/services/posts_service.dart';
 
 class UserProfile extends StatefulWidget {
   final UserProfileInfo user;
+  final Stream<List<Post>> postStream;
 
-  const UserProfile({super.key, required this.user});
+  const UserProfile({super.key, required this.user, required this.postStream});
 
   @override
   State<UserProfile> createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-  late Stream<List<Post>> _postStream;
-
   @override
   void initState() {
     super.initState();
-    _postStream = PostsService.getOwnPosts(widget.user.uid);
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _postStream,
+      stream: widget.postStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print("ERROR ON USER PROFILE: ${snapshot.error}");
           return const Text("There was an error");
         }
 

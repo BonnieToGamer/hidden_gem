@@ -218,7 +218,6 @@ class _EditPostState extends State<EditPost> {
             description: _descriptionController.text,
             point: _selectedPosition!,
             images: [],
-            // TODO: maybe in the future
             isPublic: _isPublic,
             uploadImages: false,
             uploadFunction:

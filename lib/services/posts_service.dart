@@ -84,6 +84,21 @@ class PostsService {
     );
   }
 
+  static Stream<List<Post>> getUsersPosts(String userId) {
+    // Query posts by current user
+    final ownStream = _db
+        .collection('posts')
+        .where('authorId', isEqualTo: userId)
+        .where('isPublic', isEqualTo: true)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+
+    return ownStream.map(
+      (snapshot) =>
+          snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList(),
+    );
+  }
+
   // updates a post
   // returns true if it succeeded otherwise false.
   static Future<bool> updatePost(Post post) async {

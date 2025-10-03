@@ -31,7 +31,6 @@ class _HomePageState extends State<HomePage> {
     final user = Provider.of<User>(context, listen: false);
 
     return StreamBuilder<List<Post>>(
-      // TODO: make this actually get all posts and not just the users own
       stream: PostsService.getAllPosts(user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
