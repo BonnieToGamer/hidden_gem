@@ -10,6 +10,7 @@ import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/pick_on_map.dart';
 import 'package:hidden_gem/pages/upload_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
@@ -19,12 +20,12 @@ import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {
-  final User user;
   Post post;
 
-  EditPost({super.key, required this.user, required this.post});
+  EditPost({super.key, required this.post});
 
   @override
   State<StatefulWidget> createState() => _EditPostState();
@@ -206,6 +207,8 @@ class _EditPostState extends State<EditPost> {
   }
 
   void _editPost() {
+    final user = Provider.of<User>(context, listen: false);
+
     if (_formKey.currentState!.validate()) {
       if (_selectedPosition == null) {
         showToast("Selected position was null");
@@ -215,14 +218,16 @@ class _EditPostState extends State<EditPost> {
       Navigator.push(context, MaterialPageRoute(
         builder: (context) =>
           UploadPost(
-            user: widget.user,
+            user: UserProfileInfo.fromUser(user),
             name: _nameController.text,
             description: _descriptionController.text,
             point: _selectedPosition!,
             images: [], // TODO: maybe in the future
             isPublic: _isPublic,
             uploadImages: false,
-            uploadFunction: (User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) {
+            uploadFunction: (UserProfileInfo author, String name,
+                String description, GeoFirePoint point, Timestamp timestamp,
+                List<String> imageIds, bool isPublic) {
               Post newPost = Post(authorId: author.uid, name: name, description: description, point: point, timestamp: timestamp, imageIds: widget.post.imageIds, isPublic: isPublic, postId: widget.post.postId);
               PostsService.updatePost(newPost);
             },

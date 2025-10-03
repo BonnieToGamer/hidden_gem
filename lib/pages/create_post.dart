@@ -10,13 +10,12 @@ import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
 
 // https://pub.dev/packages/photo_manager/example
 
 class CreatePost extends StatefulWidget {
-  final User user;
-
-  const CreatePost({super.key, required this.user});
+  const CreatePost({super.key});
 
   @override
   State<StatefulWidget> createState() => _CreatePostState();
@@ -139,7 +138,7 @@ class _CreatePostState extends State<CreatePost> {
         )
       ]
     ),
-    bottomNavigationBar: CustomNavigationBar(currentIndex: 1, user: widget.user),
+        bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     floatingActionButton: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -148,7 +147,8 @@ class _CreatePostState extends State<CreatePost> {
           children: [
           ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => TakePicture(user: widget.user)));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => TakePicture()));
             },
             child: Icon(
                 Icons.camera_alt
@@ -184,7 +184,8 @@ class _CreatePostState extends State<CreatePost> {
                     }
                   }
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => NewPost(user: widget.user, images: images)));
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => NewPost(images: images)));
                 },
                 child: Icon(Icons.send),
               )

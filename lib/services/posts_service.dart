@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
@@ -16,7 +17,8 @@ class PostsService {
     await _db.collection(_collectionPath).add(post.toMap());
   }
 
-  static Future<void> createPost(User author, String name, String description,
+  static Future<void> createPost(UserProfileInfo author, String name,
+      String description,
       GeoFirePoint point, Timestamp timestamp, List<String> imageIds,
       bool isPublic) async {
     try {

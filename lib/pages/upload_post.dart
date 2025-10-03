@@ -6,20 +6,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/pages/authenticate.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:provider/provider.dart';
 
 class UploadPost extends StatefulWidget {
-  final User user;
+  final UserProfileInfo user;
   final String name;
   final String description;
   final LatLng point;
   final List<File> images;
   final bool isPublic;
   final bool uploadImages;
-  final Function(User author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<String> imageIds, bool isPublic) uploadFunction;
+  final Function(UserProfileInfo author, String name, String description, GeoFirePoint point, Timestamp timestamp, List<
+      String> imageIds, bool isPublic) uploadFunction;
 
   UploadPost({super.key, required this.user, required this.name, required this.description, required this.point, required this.images, required this.isPublic, required this.uploadImages, required this.uploadFunction});
 
@@ -157,7 +161,10 @@ class _UploadPostState extends State<UploadPost> {
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomePage(user: widget.user)), (route) => false);
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      builder: (context) =>
+                          Authenticate(forward: () => HomePage())), (
+                      route) => false);
                 },
                 child: const Text("Back"),
               ),

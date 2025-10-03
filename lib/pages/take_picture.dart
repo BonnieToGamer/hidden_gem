@@ -9,9 +9,7 @@ import 'package:hidden_gem/pages/new_post.dart';
 // https://docs.flutter.dev/cookbook/plugins/picture-using-camera
 
 class TakePicture extends StatefulWidget {
-  final User user;
-
-  const TakePicture({super.key, required this.user});
+  const TakePicture({super.key});
 
   @override
   State<StatefulWidget> createState() => _TakePictureState();
@@ -111,8 +109,7 @@ class _TakePictureState extends State<TakePicture> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        NewPost(user: widget.user, images: images),
+                    builder: (context) => NewPost(images: images),
                   ),
                 );
               },

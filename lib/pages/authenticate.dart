@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:hidden_gem/pages/sign_in.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 
+limport 'package:provider/provider.dart
+';
+
 class Authenticate extends StatelessWidget {
-  final Widget Function(User) forward;
+  final Widget Function() forward;
 
   const Authenticate({
     super.key,
@@ -13,20 +16,16 @@ class Authenticate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-        stream: AuthService.userStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    final user = Provider.of<User?>(context);
 
-          if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return forward(user);
-          }
+    if (user == null && FirebaseAuth.instance.currentUser == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-          return SignIn();
-        }
-    );
+    if (user != null) {
+      return forward();
+    }
+
+    return SignIn();
   }
 }

@@ -115,7 +115,9 @@ class _SignInState extends State<SignIn> {
           if (user != null) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => HomePage(user: user)),
+              MaterialPageRoute(
+                builder: (_) => Authenticate(forward: () => HomePage()),
+              ),
             );
           }
         },
@@ -208,7 +210,7 @@ class _SignInState extends State<SignIn> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        Authenticate(forward: (user) => HomePage(user: user)),
+                        Authenticate(forward: () => HomePage()),
                   ),
                   (route) => false,
                 );

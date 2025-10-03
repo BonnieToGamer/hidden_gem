@@ -9,13 +9,11 @@ import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  final User user;
-
   HomePage({
-    super.key,
-    required this.user
+    super.key
   });
 
   @override
@@ -29,15 +27,17 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: _checkPermission(),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 0, user: widget.user),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
 
   // TODO: filters on e.g newly made posts
   Widget _homePage() {
+    final user = Provider.of<User>(context, listen: false);
+
     return StreamBuilder<List<Post>>(
       // TODO: make this actually get all posts and not just the users own
-        stream: PostsService.getAllPosts(widget.user.uid),
+        stream: PostsService.getAllPosts(user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox.shrink();
@@ -51,7 +51,8 @@ class _HomePageState extends State<HomePage> {
               rotate: true,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPost(user: widget.user, post: post)));
+                  Navigator.push(context, MaterialPageRoute(builder: (
+                      context) => ViewPost(post: post)));
                 },
                 child: Icon(
                   Icons.location_pin,

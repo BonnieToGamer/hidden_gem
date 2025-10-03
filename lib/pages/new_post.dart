@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
+import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/pick_on_map.dart';
 import 'package:hidden_gem/pages/upload_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
@@ -16,12 +17,12 @@ import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 
 class NewPost extends StatefulWidget {
-  final User user;
   final List<File> images;
 
-  const NewPost({super.key, required this.user, required this.images});
+  const NewPost({super.key, required this.images});
 
   @override
   State<StatefulWidget> createState() => _NewPostState();
@@ -197,11 +198,13 @@ class _NewPostState extends State<NewPost> {
         return;
       }
 
+      final user = Provider.of<User>(context, listen: false);
+
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => UploadPost(
-            user: widget.user,
+            user: UserProfileInfo.fromUser(user),
             name: _nameController.text,
             description: _descriptionController.text,
             point: _selectedPosition!,

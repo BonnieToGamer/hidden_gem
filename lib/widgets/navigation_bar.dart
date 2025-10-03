@@ -4,27 +4,24 @@ import 'package:flutter/widgets.dart';
 import 'package:hidden_gem/pages/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/own_user_profile.dart';
+import 'package:provider/provider.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
-  final User user;
 
   const CustomNavigationBar({
     super.key,
-    required this.currentIndex,
-    required this.user
+    required this.currentIndex
   });
 
   void _move(BuildContext context, Widget newWidget) {
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation1, animation2) => newWidget,
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero
-      ),
-
-      (route) => false, // remove everything
+      )
     );
   }
 
@@ -36,11 +33,11 @@ class CustomNavigationBar extends StatelessWidget {
       selectedIndex: currentIndex,
       onDestinationSelected: (int index) {
         if (index == 0) {
-          _move(context, HomePage(user: user));
+          _move(context, HomePage());
         } else if (index == 1) {
-          _move(context, CreatePost(user: user));
+          _move(context, CreatePost());
         } else if (index == 2) {
-          _move(context, OwnUserProfile(user: user));
+          _move(context, OwnUserProfile());
         }
       },
 

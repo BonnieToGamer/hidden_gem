@@ -92,8 +92,7 @@ class _CreateUserState extends State<CreateUser> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            Authenticate(forward: (user) => HomePage(user: user)),
+        builder: (context) => Authenticate(forward: () => HomePage()),
       ),
       (route) => false,
     );

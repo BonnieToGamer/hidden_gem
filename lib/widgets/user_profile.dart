@@ -2,12 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/view_post.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 
 class UserProfile extends StatefulWidget {
-  final User user;
+  final UserProfileInfo user;
 
   const UserProfile({super.key, required this.user});
 
@@ -73,7 +74,6 @@ class _UserProfileState extends State<UserProfile> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ViewPost(
-                                  user: widget.user,
                                   post: posts[index],
                                 ),
                               ),
@@ -103,7 +103,7 @@ class _UserProfileState extends State<UserProfile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.photoURL ?? ""),
+                backgroundImage: NetworkImage(widget.user.avatar ?? ""),
                 radius: 40,
               ),
               SizedBox(width: 20),
@@ -114,7 +114,7 @@ class _UserProfileState extends State<UserProfile> {
                   Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
-                      "${widget.user.displayName}",
+                      widget.user.name,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

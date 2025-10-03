@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hidden_gem/pages/authenticate.dart';
 import 'package:hidden_gem/pages/create_user.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/sign_in.dart';
@@ -121,7 +122,8 @@ class _SignUpState extends State<SignUp> {
 
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => HomePage(user: user)),
+              MaterialPageRoute(
+                  builder: (_) => Authenticate(forward: () => HomePage())),
             );
           }
         },

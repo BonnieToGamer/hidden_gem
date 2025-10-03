@@ -14,18 +14,16 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await GoogleSignIn.instance.initialize();
 
   runApp(
     StreamProvider<User?>.value(
-        value: AuthService.userStream,
+      value: AuthService.userStream,
       initialData: null,
-      child: MyApp()
-    )
+      child: MyApp(),
+    ),
   );
 }
 
@@ -41,7 +39,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         ),
-        home: Authenticate(forward: (user) => HomePage(user: user))
+        home: Authenticate(forward: () => HomePage()),
       ),
     );
   }

@@ -4,15 +4,16 @@ import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/pages/edit_post.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/post_widget.dart';
+import 'package:provider/provider.dart';
 
 class ViewPost extends StatelessWidget {
-  final User user;
   final Post post;
 
-  const ViewPost({super.key, required this.user, required this.post});
+  const ViewPost({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User>(context, listen: false);
     bool isOwnPost = post.authorId == user.uid;
 
     return Scaffold(
@@ -56,7 +57,8 @@ class ViewPost extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditPost(user: user, post: post)));
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => EditPost(post: post)));
                 },
                 child: Icon(Icons.edit),
               ),

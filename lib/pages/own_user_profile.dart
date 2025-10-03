@@ -1,16 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/settings.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:hidden_gem/widgets/user_profile.dart';
+import 'package:provider/provider.dart';
 
 class OwnUserProfile extends StatelessWidget {
-  final User user;
-
-  const OwnUserProfile({super.key, required this.user});
+  const OwnUserProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("${user.displayName}'s profile"),
@@ -26,8 +28,8 @@ class OwnUserProfile extends StatelessWidget {
           ),
         ],
       ),
-      body: UserProfile(user: user),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 2, user: user),
+      body: UserProfile(user: UserProfileInfo.fromUser(user)),
+      bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
 }
