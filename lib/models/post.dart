@@ -3,6 +3,7 @@ import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 class Post {
   late String? postId;
+  late bool? isLiked;
   final String authorId;
   final String name;
   final String description;
@@ -20,6 +21,7 @@ class Post {
     required this.imageIds,
     required this.isPublic,
     this.postId,
+    this.isLiked,
   });
 
   factory Post.fromFirestore(DocumentSnapshot doc) {

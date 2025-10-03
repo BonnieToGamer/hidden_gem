@@ -135,9 +135,7 @@ class PostsService {
     lastDocument = null;
   }
 
-  static Future<List<Post>> getPagedPosts(String uid, {
-    int limit = 10,
-  }) async {
+  static Future<List<Post>> getPagedPosts(String uid, {int limit = 10}) async {
     Query query = _db
         .collection("posts")
         .where("isPublic", isEqualTo: true)
@@ -159,21 +157,40 @@ class PostsService {
   }
 
   static Future<void> likePost(Post post, String uid) async {
-    await _db.collection("likes").add(
-        Like(postId: post.postId!, userId: uid, timestamp: Timestamp.now())
-            .toMap());
+    await _db
+        .collection("likes")
+        .add(
+      Like(
+        postId: post.postId!,
+        userId: uid,
+        timestamp: Timestamp.now(),
+      ).toMap(),
+    );
   }
 
-  static Stream<List<Like>> getLikeStatus(Post post, String uid) {
-    final ownStream = _db
-        .collection('likes')
-        .where('authorId', isEqualTo: uid)
-        .snapshots();
+  static Future<void> unlikePost(Like like) async {
+    await _db.collection("likes").doc(like.id!).delete();
+  }
 
-    return ownStream.map(
-          (snapshot) =>
-          snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList(),
-    );
+  static Stream<Like> getLikeStatus(Post post, String uid) {
+    return _db
+        .collection('likes')
+        .where('postId', isEqualTo: post.postId)
+        .where('userId', isEqualTo: uid)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) =>
+    snapshot.docs
+        .map((doc) => Like.fromFirestore(doc))
+        .toList()[0]);
+  }
+
+  static Stream<int> getLikeCount(Post post) {
+    return _db
+        .collection('likes')
+        .where('postId', isEqualTo: post.postId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 
   // make this actually work :(
