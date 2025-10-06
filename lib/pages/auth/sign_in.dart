@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
+import 'package:hidden_gem/pages/auth/forgot_password.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/auth/sign_up.dart';
 import 'package:hidden_gem/services/auth_service.dart';
@@ -183,7 +184,8 @@ class _SignInState extends State<SignIn> {
 
           TextButton(
             onPressed: () {
-              // TODO: make forgot password work
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ForgotPassword()));
             },
             style: TextButton.styleFrom(padding: EdgeInsets.zero),
             child: const Text("Forgot password?"),

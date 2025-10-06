@@ -72,4 +72,17 @@ class AuthService {
       return null;
     }
   }
+
+  static Future<void> forgotPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (err) {
+      print("Error sending password reset (auth exception): ${err.message
+          .toString()}");
+      throw Exception(err.message.toString());
+    } catch (err) {
+      print("Error sending password reset (*): ${err.toString()}");
+      throw Exception(err.toString());
+    }
+  }
 }
