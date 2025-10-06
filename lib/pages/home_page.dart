@@ -16,10 +16,34 @@ enum _HomeState { Map, Feed }
 
 class _HomePageState extends State<HomePage> {
   _HomeState _state = _HomeState.Map;
+  bool? _hasPermission;
 
   @override
   void initState() {
     super.initState();
+    _checkPermission();
+  }
+
+  Future<void> _checkPermission() async {
+    final hasPermission = await GeolocatorService.checkPermission();
+
+    if (!hasPermission && mounted) {
+      final snackBar = SnackBar(
+        content: const Text(
+          "Location permission denied, please enable for best experience",
+        ),
+      );
+
+      SchedulerBinding.instance.addPostFrameCallback(
+        (duration) => ScaffoldMessenger.of(context).showSnackBar(snackBar),
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _hasPermission = hasPermission;
+      });
+    }
   }
 
   @override
@@ -29,8 +53,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+
+    if (_hasPermission == null) {
+      child = CircularProgressIndicator();
+    } else {
+      child = _homePage();
+    }
+
     return Scaffold(
-      body: Center(child: _checkPermission()),
+      body: Center(child: child),
       bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
@@ -97,41 +129,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _checkPermission() {
-    if (GeolocatorService.hasLocationPermission) {
-      return _homePage();
-    }
-
-    return FutureBuilder(
-      future: GeolocatorService.checkPermission(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return const Center(
-            child: Text("There was an error getting location permission"),
-          );
-        }
-
-        if (snapshot.hasData && snapshot.data == false) {
-          final snackBar = SnackBar(
-            content: const Text(
-              "Location permission denied, please enable for best experience",
-            ),
-          );
-
-          SchedulerBinding.instance.addPostFrameCallback(
-            (duration) => ScaffoldMessenger.of(context).showSnackBar(snackBar),
-          );
-        }
-
-        return _homePage();
-      },
     );
   }
 }

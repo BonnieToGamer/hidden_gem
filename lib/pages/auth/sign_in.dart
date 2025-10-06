@@ -110,16 +110,7 @@ class _SignInState extends State<SignIn> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
         onPressed: () async {
-          final user = await AuthService.signInWithGoogle();
-          if (user != null) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (_) => Authenticate(forward: () => HomePage()),
-              ),
-                  (route) => false,
-            );
-          }
+          await AuthService.signInWithGoogle();
         },
       ),
     );
@@ -205,15 +196,6 @@ class _SignInState extends State<SignIn> {
                 await AuthService.signInUser(
                   _emailController.text,
                   _passwordController.text,
-                );
-
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        Authenticate(forward: () => HomePage()),
-                  ),
-                  (route) => false,
                 );
               },
               child: const Text("Sign in"),
