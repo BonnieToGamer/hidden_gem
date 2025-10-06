@@ -8,6 +8,7 @@ import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/post/pick_on_map.dart';
 import 'package:hidden_gem/pages/post/upload_post.dart';
+import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:latlong2/latlong.dart';
@@ -199,7 +200,9 @@ class _NewPostState extends State<NewPost> {
         return;
       }
 
-      final user = Provider.of<User>(context, listen: false);
+      final user = Provider
+          .of<AuthState>(context, listen: false)
+          .user!;
 
       Navigator.push(
         context,

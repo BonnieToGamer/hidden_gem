@@ -112,11 +112,12 @@ class _SignInState extends State<SignIn> {
         onPressed: () async {
           final user = await AuthService.signInWithGoogle();
           if (user != null) {
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                 builder: (_) => Authenticate(forward: () => HomePage()),
               ),
+                  (route) => false,
             );
           }
         },

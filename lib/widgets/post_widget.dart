@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/user_profile/view_user_profile.dart';
+import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
@@ -196,7 +197,7 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   Widget _likes(BuildContext context) {
-    final user = Provider.of<User>(context, listen: false);
+    final user = Provider.of<AuthState>(context, listen: false).user!;
 
     return Padding(
       padding: const EdgeInsets.all(1.0),

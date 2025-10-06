@@ -1,12 +1,35 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:rxdart/rxdart.dart';
+
+class AuthState {
+  final bool isLoading;
+  final User? user;
+
+  AuthState._({required this.isLoading, this.user});
+
+  factory AuthState.loading() => AuthState._(isLoading: true);
+
+  factory AuthState.authenticated(User user) =>
+      AuthState._(isLoading: false, user: user);
+
+  factory AuthState.unauthenticated() => AuthState._(isLoading: false);
+}
 
 class AuthService {
   const AuthService._();
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  static Stream<User?> get userStream => _auth.authStateChanges();
+  static Stream<AuthState> get authStateChanges {
+    return _auth.authStateChanges().map<AuthState>((user) {
+      if (user != null) {
+        return AuthState.authenticated(user);
+      } else {
+        return AuthState.unauthenticated();
+      }
+    }).startWith(AuthState.loading());
+  }
 
   static Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();

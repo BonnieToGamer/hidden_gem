@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/pages/post/edit_post.dart';
+import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/post_widget.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,7 @@ class ViewPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context, listen: false);
+    final user = Provider.of<AuthState>(context, listen: false).user!;
     bool isOwnPost = post.authorId == user.uid;
 
     return Scaffold(

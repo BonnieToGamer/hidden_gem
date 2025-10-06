@@ -15,9 +15,9 @@ Future<void> main() async {
   await GoogleSignIn.instance.initialize();
 
   runApp(
-    StreamProvider<User?>.value(
-      value: AuthService.userStream,
-      initialData: null,
+    StreamProvider<AuthState>.value(
+      value: AuthService.authStateChanges,
+      initialData: AuthState.loading(),
       child: MyApp(),
     ),
   );

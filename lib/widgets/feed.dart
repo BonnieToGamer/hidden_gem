@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/post_widget.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class _FeedState extends State<Feed> {
   void initState() {
     super.initState();
 
-    _user = Provider.of<User>(context, listen: false);
+    _user = Provider.of<AuthState>(context, listen: false).user!;
 
     _fetchMorePosts();
 
