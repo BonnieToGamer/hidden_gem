@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -350,19 +351,21 @@ class _EditPostState extends State<EditPost> {
             return Container(
               width: MediaQuery.of(context).size.width,
               margin: EdgeInsets.symmetric(horizontal: 5.0),
-              child: Image.network(
-                url,
+              child: CachedNetworkImage(
+                imageUrl: url,
                 fit: BoxFit.scaleDown,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-                  return SizedBox(
+                placeholder: (context, url) =>
+                const SizedBox(
+                  width: double.infinity,
+                  height: 150,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) =>
+                const SizedBox(
                     width: double.infinity,
                     height: 150,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
+                    child: Center(child: Icon(Icons.error))
+                ),
               ),
             );
           }).toList(),

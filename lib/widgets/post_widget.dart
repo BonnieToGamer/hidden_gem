@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -88,34 +89,40 @@ class _PostWidgetState extends State<PostWidget> {
                     context: context,
                     builder: (_) => Dialog(
                       child: InteractiveViewer(
-                        child: Image.network(
-                          url,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          placeholder: (context, url) =>
+                          const SizedBox(
+                            width: double.infinity,
+                            height: 150,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) =>
+                          const SizedBox(
+                              width: double.infinity,
+                              height: 150,
+                              child: Center(child: Icon(Icons.error))
+                          ),
                         ), // TODO: check out https://pub.dev/packages/photo_view
                       ),
                     ),
                   );
                 },
-                child: Image.network(
-                  url,
+                child: CachedNetworkImage(
+                  imageUrl: url,
                   fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return SizedBox(
+                  placeholder: (context, url) =>
+                  const SizedBox(
+                    width: double.infinity,
+                    height: 150,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  errorWidget: (context, url, error) =>
+                  const SizedBox(
                       width: double.infinity,
                       height: 150,
-                      child: const Center(child: CircularProgressIndicator()),
-                    );
-                  },
+                      child: Center(child: Icon(Icons.error))
+                  ),
                 ),
               ),
             );
@@ -167,7 +174,8 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
-  Text _description() => Text(widget.post.description);
+  Text _description() =>
+      Text(widget.post.description, style: TextStyle(fontSize: 16));
 
   Row _header(BuildContext context) {
     return Row(
@@ -188,10 +196,11 @@ class _PostWidgetState extends State<PostWidget> {
           ),
           child: Text(
             _author.name,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
-        Text(widget.post.name, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(widget.post.name,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     );
   }
