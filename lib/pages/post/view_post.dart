@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
-import 'package:hidden_gem/pages/edit_post.dart';
+import 'package:hidden_gem/pages/post/edit_post.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/post_widget.dart';
 import 'package:provider/provider.dart';

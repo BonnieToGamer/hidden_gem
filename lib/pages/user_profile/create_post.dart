@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
-import 'package:hidden_gem/pages/new_post.dart';
-import 'package:hidden_gem/pages/take_picture.dart';
+import 'package:hidden_gem/pages/post/new_post.dart';
+import 'package:hidden_gem/pages/post/take_picture.dart';
 import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:photo_manager/photo_manager.dart';

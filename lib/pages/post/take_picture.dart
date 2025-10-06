@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
-import 'package:hidden_gem/pages/new_post.dart';
+import 'package:hidden_gem/pages/post/new_post.dart';
 
 // https://docs.flutter.dev/cookbook/plugins/picture-using-camera
 

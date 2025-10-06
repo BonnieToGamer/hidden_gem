@@ -1,10 +1,10 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hidden_gem/pages/authenticate.dart';
-import 'package:hidden_gem/pages/create_user.dart';
+import 'package:hidden_gem/pages/auth/authenticate.dart';
+import 'package:hidden_gem/pages/auth/create_user.dart';
 import 'package:hidden_gem/pages/home_page.dart';
-import 'package:hidden_gem/pages/sign_in.dart';
+import 'package:hidden_gem/pages/auth/sign_in.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
-import 'package:hidden_gem/pages/view_post.dart';
+import 'package:hidden_gem/pages/post/view_post.dart';
 import 'package:hidden_gem/services/image_service.dart';
 
 class UserProfile extends StatefulWidget {

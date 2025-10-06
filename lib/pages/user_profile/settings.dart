@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/sign_in.dart';
+import 'package:hidden_gem/pages/auth/sign_in.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 

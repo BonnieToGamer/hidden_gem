@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
-import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/feed.dart';
 import 'package:hidden_gem/widgets/home_map.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';

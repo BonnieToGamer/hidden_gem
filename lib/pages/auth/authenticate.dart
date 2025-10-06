@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/sign_in.dart';
+import 'package:hidden_gem/pages/auth/sign_in.dart';
 import 'package:provider/provider.dart';
 
 class Authenticate extends StatelessWidget {

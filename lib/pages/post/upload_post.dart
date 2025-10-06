@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/user_info.dart';
-import 'package:hidden_gem/pages/authenticate.dart';
+import 'package:hidden_gem/pages/auth/authenticate.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:latlong2/latlong.dart';

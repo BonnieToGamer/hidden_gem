@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
-import 'package:hidden_gem/pages/view_user_profile.dart';
+import 'package:hidden_gem/pages/user_profile/view_user_profile.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/services/user_service.dart';

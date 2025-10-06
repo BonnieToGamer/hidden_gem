@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/create_post.dart';
+import 'package:hidden_gem/pages/user_profile/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
-import 'package:hidden_gem/pages/own_user_profile.dart';
+import 'package:hidden_gem/pages/user_profile/own_user_profile.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;

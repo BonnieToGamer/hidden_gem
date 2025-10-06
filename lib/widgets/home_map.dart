@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hidden_gem/models/post.dart';
-import 'package:hidden_gem/pages/view_post.dart';
+import 'package:hidden_gem/pages/post/view_post.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
