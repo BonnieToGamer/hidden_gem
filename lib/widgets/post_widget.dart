@@ -328,7 +328,9 @@ class _PostWidgetState extends State<PostWidget>
         children: [
           GestureDetector(
             onTap: () {
-              _showCommentsPopUp(context);
+              if (!widget.inlineComments) {
+                _showCommentsPopUp(context);
+              }
             },
             child: Icon(
               Icons.chat_bubble_outline,
