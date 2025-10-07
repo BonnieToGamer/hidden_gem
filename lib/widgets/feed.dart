@@ -41,7 +41,7 @@ class _FeedState extends State<Feed> {
   @override
   void dispose() {
     _scrollController.dispose();
-    PostsService.resetPagination();
+    PostsService.resetPostPagination();
 
     super.dispose();
   }
@@ -53,7 +53,9 @@ class _FeedState extends State<Feed> {
       itemCount: _posts.length + 1,
       itemBuilder: (context, index) {
         if (index < _posts.length) {
-          return PostWidget(post: _posts[index]);
+          return PostWidget(key: ValueKey(_posts[index].postId!),
+              post: _posts[index],
+              inlineComments: false);
         } else if (_hasMore) {
           return const Center(child: CircularProgressIndicator());
         } else {
@@ -64,6 +66,7 @@ class _FeedState extends State<Feed> {
   }
 
   Future<void> _fetchMorePosts() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -72,6 +75,8 @@ class _FeedState extends State<Feed> {
       _user.uid,
       limit: 10,
     );
+
+    if (!mounted) return;
 
     setState(() {
       _posts.addAll(newPosts);

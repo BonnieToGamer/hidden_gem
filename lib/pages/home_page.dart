@@ -18,6 +18,9 @@ class _HomePageState extends State<HomePage> {
   _HomeState _state = _HomeState.Map;
   bool? _hasPermission;
 
+  late final HomeMap _homeMap = HomeMap();
+  late final Feed _feed = Feed();
+
   @override
   void initState() {
     super.initState();
@@ -58,30 +61,18 @@ class _HomePageState extends State<HomePage> {
     if (_hasPermission == null) {
       child = CircularProgressIndicator();
     } else {
-      child = _homePage();
+      child = Stack(
+        children: [
+          Offstage(offstage: _state != _HomeState.Map, child: _homeMap),
+          Offstage(offstage: _state != _HomeState.Feed, child: _feed),
+          Align(alignment: Alignment(0, -0.85), child: _buildSwitcher()),
+        ],
+      );
     }
 
     return Scaffold(
-      body: Center(child: child),
+      body: child,
       bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
-    );
-  }
-
-  // TODO: filters on e.g newly made posts
-  Widget _homePage() {
-    Widget stateWidget;
-
-    if (_state == _HomeState.Map) {
-      stateWidget = HomeMap();
-    } else {
-      stateWidget = Feed();
-    }
-
-    return Stack(
-      children: [
-        Expanded(child: stateWidget),
-        Align(alignment: Alignment(0, -0.85), child: _buildSwitcher()),
-      ],
     );
   }
 

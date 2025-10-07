@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:hidden_gem/models/comment.dart';
 import 'package:hidden_gem/models/like.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
@@ -9,6 +10,9 @@ import 'package:rxdart/rxdart.dart';
 class PostsService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
   static final String _collectionPath = "posts";
+  static DocumentSnapshot? lastPostDocument;
+  static DocumentSnapshot? lastCommentDocument;
+
 
   const PostsService._();
 
@@ -129,10 +133,8 @@ class PostsService {
     }
   }
 
-  static DocumentSnapshot? lastDocument;
-
-  static void resetPagination() {
-    lastDocument = null;
+  static void resetPostPagination() {
+    lastPostDocument = null;
   }
 
   static Future<List<Post>> getPagedPosts(String uid, {int limit = 10}) async {
@@ -143,14 +145,14 @@ class PostsService {
         .orderBy("timestamp", descending: true)
         .limit(limit);
 
-    if (lastDocument != null) {
-      query = query.startAfterDocument(lastDocument!);
+    if (lastPostDocument != null) {
+      query = query.startAfterDocument(lastPostDocument!);
     }
 
     final querySnapshot = await query.get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      lastDocument = querySnapshot.docs.last;
+      lastPostDocument = querySnapshot.docs.last;
     }
 
     return querySnapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
@@ -191,6 +193,43 @@ class PostsService {
         .where('postId', isEqualTo: post.postId)
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
+  }
+
+  static Stream<int> getCommentCount(Post post) {
+    return _db
+        .collection('comments')
+        .where('postId', isEqualTo: post.postId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+
+  static Future<void> postComment(Comment comment) async {
+    await _db.collection("comments").add(comment.toMap());
+  }
+
+  static Future<List<Comment>> getPagedComments(String postId,
+      {int limit = 10}) async {
+    Query query = _db
+        .collection("comments")
+        .where("postId", isEqualTo: postId)
+        .orderBy("timestamp", descending: true)
+        .limit(limit);
+
+    if (lastCommentDocument != null) {
+      query = query.startAfterDocument(lastCommentDocument!);
+    }
+
+    final querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      lastCommentDocument = querySnapshot.docs.last;
+    }
+
+    return querySnapshot.docs.map((doc) => Comment.fromFirestore(doc)).toList();
+  }
+
+  static void resetCommentPagination() {
+    lastCommentDocument = null;
   }
 
   // make this actually work :(

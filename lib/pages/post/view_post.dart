@@ -76,7 +76,7 @@ class ViewPost extends StatelessWidget {
               : null,
         ],
       ),
-      body: PostWidget(post: post),
+      body: PostWidget(post: post, inlineComments: true),
     );
   }
 }
