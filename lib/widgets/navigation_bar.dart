@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hidden_gem/pages/user_profile/create_post.dart';
+import 'package:hidden_gem/pages/post/create_post.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/user_profile/own_user_profile.dart';
 

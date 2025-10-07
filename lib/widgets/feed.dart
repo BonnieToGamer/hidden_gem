@@ -27,15 +27,6 @@ class _FeedState extends State<Feed> {
     _user = Provider.of<AuthState>(context, listen: false).user!;
 
     _fetchMorePosts();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
-          !_isLoading &&
-          _hasMore) {
-        _fetchMorePosts();
-      }
-    });
   }
 
   @override
@@ -49,9 +40,15 @@ class _FeedState extends State<Feed> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      key: PageStorageKey("feed_list_view"),
       controller: _scrollController,
       itemCount: _posts.length + 1,
+      cacheExtent: 1000,
       itemBuilder: (context, index) {
+        if (index == _posts.length && !_isLoading && _hasMore) {
+          _fetchMorePosts();
+        }
+
         if (index < _posts.length) {
           return PostWidget(key: ValueKey(_posts[index].postId!),
               post: _posts[index],

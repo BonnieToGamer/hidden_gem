@@ -29,7 +29,8 @@ class PostWidget extends StatefulWidget {
   State<PostWidget> createState() => _PostWidgetState();
 }
 
-class _PostWidgetState extends State<PostWidget> {
+class _PostWidgetState extends State<PostWidget>
+    with AutomaticKeepAliveClientMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _commentController;
   late Future<List<String>> _imageUrlsFuture;
@@ -56,6 +57,7 @@ class _PostWidgetState extends State<PostWidget> {
 
   Future<void> loadAuthor() async {
     UserProfileInfo author = await UserService.getUser(widget.post.authorId);
+    if (!mounted) return;
     setState(() {
       _author = author;
     });
@@ -67,6 +69,8 @@ class _PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (_author == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -490,4 +494,7 @@ class _PostWidgetState extends State<PostWidget> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
