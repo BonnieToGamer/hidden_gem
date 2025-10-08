@@ -32,6 +32,7 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget>
     with AutomaticKeepAliveClientMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late GlobalKey<CommentsState> _commentsKey = GlobalKey<CommentsState>();
   late TextEditingController _commentController;
   late Future<List<String>> _imageUrlsFuture;
   UserProfileInfo? _author;
@@ -415,43 +416,51 @@ class _PostWidgetState extends State<PostWidget>
   }
 
   Widget _comments() {
-    return Comments(postId: widget.post.postId!);
+    return Comments(key: _commentsKey, postId: widget.post.postId!);
   }
 
   Widget _newComment() {
     return Form(
       key: _formKey,
-      child: TextFormField(
-        controller: _commentController,
-        style: TextStyle(fontSize: 14),
-        validator: (String? text) {
-          if (text == null || text.isEmpty) {
-            return "Please type a comment first";
-          }
+      child: _isPostingComment
+          ? const Center(child: CircularProgressIndicator())
+          : TextFormField(
+              controller: _commentController,
+              style: TextStyle(fontSize: 14),
+              validator: (String? text) {
+                if (text == null || text.isEmpty) {
+                  return "Please type a comment first";
+                }
 
-          if (text.length >= 256) {
+                if (text.length >= 256) {
             return "Comments can only have a max length of 256";
           }
 
-          return null;
-        },
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: "Post new comment...",
-          suffixIcon: IconButton(
-            onPressed: () async {
-              if (_isPostingComment || !_formKey.currentState!.validate()) {
-                return;
-              }
+                return null;
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "Post new comment...",
+                suffixIcon: IconButton(
+                  onPressed: () async {
+                    if (_isPostingComment ||
+                        !_formKey.currentState!.validate()) {
+                      return;
+                    }
 
-              String commentContent = _commentController.text;
+                    String commentContent = _commentController.text;
 
-              setState(() {
-                _isPostingComment = true;
-                _commentController.clear();
-              });
+                    setState(() {
+                      _isPostingComment = true;
+                      _commentController.clear();
+                    });
 
-              User user = Provider.of<AuthState>(context, listen: false).user!;
+                    User user = Provider
+                  .of<AuthState>(
+                context,
+                listen: false,
+              )
+                  .user!;
               Comment comment = Comment(
                 userId: user.uid,
                 postId: widget.post.postId!,
@@ -460,14 +469,17 @@ class _PostWidgetState extends State<PostWidget>
               );
               await PostsService.postComment(comment);
 
-              if (!mounted) return;
-              setState(() {});
-            },
-            icon: Icon(Icons.send),
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ),
+                    if (!mounted) return;
+                    setState(() {
+                      _isPostingComment = false;
+                      _commentsKey.currentState!.addNewComment(comment);
+                    });
+                  },
+                  icon: Icon(Icons.send),
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
     );
   }
 

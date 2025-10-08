@@ -9,10 +9,10 @@ class Comments extends StatefulWidget {
   const Comments({super.key, required this.postId});
 
   @override
-  State<Comments> createState() => _CommentsState();
+  State<Comments> createState() => CommentsState();
 }
 
-class _CommentsState extends State<Comments> {
+class CommentsState extends State<Comments> {
   final ScrollController _scrollController = ScrollController();
   List<Comment> _comments = [];
   bool _isLoading = false;
@@ -23,14 +23,6 @@ class _CommentsState extends State<Comments> {
     super.initState();
 
     _fetchMoreComments();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
-          !_isLoading &&
-          _hasMore) {
-        _fetchMoreComments();
-      }
-    });
   }
 
   @override
@@ -39,6 +31,13 @@ class _CommentsState extends State<Comments> {
     PostsService.resetCommentPagination();
 
     super.dispose();
+  }
+
+  // For manually adding a new comment when posting a new one.
+  void addNewComment(Comment comment) {
+    setState(() {
+      _comments.insert(0, comment);
+    });
   }
 
   Future<void> _fetchMoreComments() async {
@@ -73,10 +72,20 @@ class _CommentsState extends State<Comments> {
         if (index < _comments.length) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: CommentWidget(comment: _comments[index]),
+            child: CommentWidget(
+              key: ValueKey(_comments[index].id),
+              comment: _comments[index],
+            ),
           );
         } else if (_hasMore) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: TextButton(
+              onPressed: () {
+                _fetchMoreComments();
+              },
+              child: Text("Load more"),
+            ),
+          );
         } else {
           return SizedBox();
         }
