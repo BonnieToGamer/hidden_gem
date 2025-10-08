@@ -176,8 +176,10 @@ class _SignInState extends State<SignIn> {
 
           TextButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ForgotPassword()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ForgotPassword()),
+              );
             },
             style: TextButton.styleFrom(padding: EdgeInsets.zero),
             child: const Text("Forgot password?"),
@@ -196,6 +198,17 @@ class _SignInState extends State<SignIn> {
                 await AuthService.signInUser(
                   _emailController.text,
                   _passwordController.text,
+                );
+
+                if (!mounted) return;
+
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        Authenticate(forward: () => HomePage()),
+                  ),
+                  (_) => false,
                 );
               },
               child: const Text("Sign in"),
