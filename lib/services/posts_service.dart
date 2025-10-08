@@ -207,6 +207,10 @@ class PostsService {
     await _db.collection("comments").add(comment.toMap());
   }
 
+  static Future<void> deleteComment(Comment comment) async {
+    await _db.collection("comments").doc(comment.id).delete();
+  }
+
   static Future<List<Comment>> getPagedComments(String postId,
       {int limit = 10}) async {
     Query query = _db

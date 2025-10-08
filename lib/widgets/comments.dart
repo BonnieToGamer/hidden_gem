@@ -61,6 +61,12 @@ class CommentsState extends State<Comments> {
     });
   }
 
+  void _handleCommentDeleted(String commentId) {
+    setState(() {
+      _comments.removeWhere((c) => c.id == commentId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -75,6 +81,7 @@ class CommentsState extends State<Comments> {
             child: CommentWidget(
               key: ValueKey(_comments[index].id),
               comment: _comments[index],
+              onDelete: _handleCommentDeleted,
             ),
           );
         } else if (_hasMore) {
