@@ -97,5 +97,11 @@ class _CreateUserState extends State<CreateUser> {
     if (!mounted) return;
 
     await UserService.createUserManual(user.uid, widget.name, url);
+
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+        builder: (context) => Authenticate(forward: () => HomePage())), (
+        _) => false);
   }
 }

@@ -4,7 +4,11 @@ import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/pages/post/view_post.dart';
+import 'package:hidden_gem/pages/user_profile/friends.dart';
+import 'package:hidden_gem/services/auth_service.dart';
+import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
+import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
   final UserProfileInfo user;
@@ -80,7 +84,9 @@ class _UserProfileState extends State<UserProfile> {
                             imageUrl: imageUrl[0],
                             fit: BoxFit.cover,
                             placeholder: (context, url) =>
-                            const Center(child: CircularProgressIndicator()),
+                            const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                             errorWidget: (context, url, error) =>
                             const Center(child: Icon(Icons.error)),
                           ),
@@ -98,6 +104,11 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Padding buildProfileHeader(int postCount) {
+    final user = Provider
+        .of<AuthState>(context, listen: false)
+        .user!;
+    final ownProfile = user.uid == widget.user.uid;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -138,16 +149,35 @@ class _UserProfileState extends State<UserProfile> {
                         ],
                       ),
                       SizedBox(width: 20),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "xx", // TODO: replace with actual numbers
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text("followers"),
-                        ],
+                      GestureDetector(
+                        onTap: ownProfile ? _onTapFriends : null,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FutureBuilder(future: FriendService.getFriends(
+                                widget.user.uid), builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Text(
+                                  "0",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                );
+                              }
+
+                              int amount = 0;
+                              if (snapshot.hasData) {
+                                amount = snapshot.data!.length;
+                              }
+
+                              return Text(
+                                "$amount",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              );
+                            }),
+                            Text("friends"),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -158,5 +188,10 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
     );
+  }
+
+  void _onTapFriends() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => FriendsPage()));
   }
 }

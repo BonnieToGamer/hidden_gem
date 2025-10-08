@@ -32,7 +32,7 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget>
     with AutomaticKeepAliveClientMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late GlobalKey<CommentsState> _commentsKey = GlobalKey<CommentsState>();
+  final GlobalKey<CommentsState> _commentsKey = GlobalKey<CommentsState>();
   late TextEditingController _commentController;
   late Future<List<String>> _imageUrlsFuture;
   UserProfileInfo? _author;
@@ -433,8 +433,8 @@ class _PostWidgetState extends State<PostWidget>
                 }
 
                 if (text.length >= 256) {
-            return "Comments can only have a max length of 256";
-          }
+                  return "Comments can only have a max length of 256";
+                }
 
                 return null;
               },
@@ -455,19 +455,17 @@ class _PostWidgetState extends State<PostWidget>
                       _commentController.clear();
                     });
 
-                    User user = Provider
-                  .of<AuthState>(
-                context,
-                listen: false,
-              )
-                  .user!;
-              Comment comment = Comment(
-                userId: user.uid,
-                postId: widget.post.postId!,
-                timestamp: Timestamp.now(),
-                content: commentContent,
-              );
-              await PostsService.postComment(comment);
+                    User user = Provider.of<AuthState>(
+                      context,
+                      listen: false,
+                    ).user!;
+                    Comment comment = Comment(
+                      userId: user.uid,
+                      postId: widget.post.postId!,
+                      timestamp: Timestamp.now(),
+                      content: commentContent,
+                    );
+                    await PostsService.postComment(comment);
 
                     if (!mounted) return;
                     setState(() {

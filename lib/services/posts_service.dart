@@ -4,17 +4,28 @@ import 'package:hidden_gem/models/comment.dart';
 import 'package:hidden_gem/models/like.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PostsService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
   static final String _collectionPath = "posts";
-  static DocumentSnapshot? lastPostDocument;
-  static DocumentSnapshot? lastCommentDocument;
-
+  static DocumentSnapshot? _lastPostDocument;
+  static DocumentSnapshot? _lastCommentDocument;
+  static final List<String> _friendIds = [];
 
   const PostsService._();
+
+  static Future<void> getFriendIds(String userId) async {
+    final friends = await FriendService.getFriends(userId);
+
+    _friendIds.clear();
+
+    for (final friend in friends) {
+      _friendIds.add(friend.uid);
+    }
+  }
 
   static Future<void> addPost(Post post) async {
     await _db.collection(_collectionPath).add(post.toMap());
@@ -50,6 +61,8 @@ class PostsService {
     final publicStream = _db
         .collection('posts')
         .where('isPublic', isEqualTo: true)
+        .where(
+        'authorId', whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
         .orderBy('timestamp', descending: true)
         .snapshots();
 
@@ -94,6 +107,8 @@ class PostsService {
     final ownStream = _db
         .collection('posts')
         .where('authorId', isEqualTo: userId)
+        .where(
+        'authorId', whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
         .where('isPublic', isEqualTo: true)
         .orderBy('timestamp', descending: true)
         .snapshots();
@@ -134,28 +149,34 @@ class PostsService {
   }
 
   static void resetPostPagination() {
-    lastPostDocument = null;
+    _lastPostDocument = null;
   }
 
   static Future<List<Post>> getPagedPosts(String uid, {int limit = 10}) async {
     Query query = _db
         .collection("posts")
+        .where(
+        "authorId", whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
         .where("isPublic", isEqualTo: true)
-        .where("authorId", isNotEqualTo: uid)
         .orderBy("timestamp", descending: true)
         .limit(limit);
 
-    if (lastPostDocument != null) {
-      query = query.startAfterDocument(lastPostDocument!);
+    if (_lastPostDocument != null) {
+      query = query.startAfterDocument(_lastPostDocument!);
     }
 
     final querySnapshot = await query.get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      lastPostDocument = querySnapshot.docs.last;
+      _lastPostDocument = querySnapshot.docs.last;
     }
 
-    return querySnapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+    final posts = querySnapshot.docs
+        .map((doc) => Post.fromFirestore(doc))
+        .where((post) => post.authorId != uid)
+        .toList();
+
+    return posts;
   }
 
   static Future<void> likePost(Post post, String uid) async {
@@ -181,10 +202,10 @@ class PostsService {
         .where('userId', isEqualTo: uid)
         .limit(1)
         .snapshots()
-        .map((snapshot) =>
-    snapshot.docs
-        .map((doc) => Like.fromFirestore(doc))
-        .toList()[0]);
+        .map(
+          (snapshot) =>
+      snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList()[0],
+    );
   }
 
   static Stream<int> getLikeCount(Post post) {
@@ -211,29 +232,30 @@ class PostsService {
     await _db.collection("comments").doc(comment.id).delete();
   }
 
-  static Future<List<Comment>> getPagedComments(String postId,
-      {int limit = 10}) async {
+  static Future<List<Comment>> getPagedComments(String postId, {
+    int limit = 10,
+  }) async {
     Query query = _db
         .collection("comments")
         .where("postId", isEqualTo: postId)
         .orderBy("timestamp", descending: true)
         .limit(limit);
 
-    if (lastCommentDocument != null) {
-      query = query.startAfterDocument(lastCommentDocument!);
+    if (_lastCommentDocument != null) {
+      query = query.startAfterDocument(_lastCommentDocument!);
     }
 
     final querySnapshot = await query.get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      lastCommentDocument = querySnapshot.docs.last;
+      _lastCommentDocument = querySnapshot.docs.last;
     }
 
     return querySnapshot.docs.map((doc) => Comment.fromFirestore(doc)).toList();
   }
 
   static void resetCommentPagination() {
-    lastCommentDocument = null;
+    _lastCommentDocument = null;
   }
 
   // make this actually work :(
