@@ -16,7 +16,7 @@ Future<void> main() async {
 
   runApp(
     StreamProvider<AuthState>.value(
-      value: AuthService.authStateChanges,
+      value: AuthService.userChanges,
       initialData: AuthState.loading(),
       child: MyApp(),
     ),

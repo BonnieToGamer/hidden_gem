@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
 import 'package:hidden_gem/pages/home_page.dart';
@@ -96,7 +97,9 @@ class _CreateUserState extends State<CreateUser> {
 
     if (!mounted) return;
 
-    await UserService.createUserManual(user.uid, widget.name, url);
+    await user.reload();
+    final refreshedUser = FirebaseAuth.instance.currentUser!;
+    await UserService.createUserManual(refreshedUser.uid, widget.name, url);
 
     if (!mounted) return;
 
