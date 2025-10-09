@@ -15,6 +15,7 @@ class FriendService {
       id: "",
       fromId: fromId,
       toId: toId,
+      status: "pending",
       timestamp: Timestamp.now(),
     );
 
@@ -25,6 +26,7 @@ class FriendService {
     return (await _db
             .collection("friendRequests")
             .where("toId", isEqualTo: user)
+            .where("status", isEqualTo: "pending")
             .get())
         .docs
         .map((doc) => FriendRequest.fromFirestore(doc))
@@ -71,69 +73,81 @@ class FriendService {
     return users;
   }
 
-  static Future<void> acceptRequest(String toId, String fromId) async {
-    final query = await _db
+  static Future<void> acceptRequest(FriendRequest request) async {
+    FriendRequest newRequest = FriendRequest(
+      id: request.id,
+      fromId: request.fromId,
+      toId: request.toId,
+      status: "accepted",
+      timestamp: request.timestamp,
+    );
+
+    await _db
         .collection("friendRequests")
-        .where("fromId", isEqualTo: fromId)
-        .where("toId", isEqualTo: toId)
-        .limit(1)
-        .get();
+        .doc(newRequest.id)
+        .set(newRequest.toMap());
 
-    await _db.runTransaction((transaction) async {
-      if (query.docs.isNotEmpty) {
-        await query.docs.first.reference.delete();
-      }
+    FriendData data = FriendData(
+      id: "",
+      friendId: request.fromId,
+      timestamp: Timestamp.now(),
+    );
 
-      final timestamp = Timestamp.now();
-      final fromFriendData = FriendData(
+    await _db
+        .collection("users")
+        .doc(request.toId)
+        .collection("friends")
+        .doc(request.fromId)
+        .set(data.toMap());
+
+    /**
+     * My previous rant has ben annulled. I just did it :)
+     * The new flow is:
+     * - User1 sends friend request to user2.
+     * - User2 accepts friend requests and updates
+     *   the friendRequests status to "accepted"
+     * - User2 edits their friends collection to
+     *   add the new friend
+     * - Next time User1 logs in or opens the app,
+     *   They will automatically check if the status
+     *   is "accepted" and delete any requests that are
+     *   and also add that friend
+     */
+  }
+
+  /*
+   * If a friendRequest's status is set to 'accepted'
+   * change it to 'finalized' and add the friend.
+   */
+  static Future<void> acceptSentRequests(String uid) async {
+    final requests =
+        (await _db
+                .collection("friendRequests")
+                .where("fromId", isEqualTo: uid)
+                .where("status", isEqualTo: "accepted")
+                .get())
+            .docs
+            .map((doc) => FriendRequest.fromFirestore(doc));
+
+    if (requests.isEmpty) {
+      return;
+    }
+
+    for (final request in requests) {
+      FriendData data = FriendData(
         id: "",
-        friendId: toId,
-        timestamp: timestamp,
-      );
-      final toFriendData = FriendData(
-        id: "",
-        friendId: fromId,
-        timestamp: timestamp,
+        friendId: request.toId,
+        timestamp: Timestamp.now(),
       );
 
-      /**
-       * Ok, I had this debate with myself and just wanna write it down
-       * for future reference. Yes, this is bad practice since technically
-       * anyone with the firebase key can add anyone as friends without
-       * explicit permission from the 'victim'. I can think of another
-       * way of doing this but it requires some synchronization across
-       * both users.
-       * The current flow is
-       * - User1 sends friend request to user2.
-       * - User2 accepts friend request
-       * - User2 modifies both User1 and User2's friends section
-       *   in firestore
-       * - They are now friends
-       *
-       * A more proper way would be
-       * - User1 sends friend request to user2.
-       * - User2 accepts friend request
-       * - User2 sets friend request status to 'accepted'
-       * - User2 edits their friends section
-       * - Next time User1 logs in check the request status
-       *     - If accepted remove request from firestore
-       *       and edit friends section to reflect new friend.
-       *
-       * I don't currently know how to do that in a proper way
-       * So I'm gonna keep it as is.
-       */
+      await _db
+          .collection("users")
+          .doc(uid)
+          .collection("friends")
+          .doc(request.toId)
+          .set(data.toMap());
 
-      transaction.set(
-        _db.collection("users").doc(fromId).collection("friends").doc(toId),
-        fromFriendData.toMap(),
-      );
-
-      transaction.set(
-        _db.collection("users").doc(toId).collection("friends").doc(fromId),
-        toFriendData.toMap(),
-      );
-    });
-
-    await PostsService.getFriendIds(toId);
+      await _db.collection("friendRequests").doc(request.id).delete();
+    }
   }
 }

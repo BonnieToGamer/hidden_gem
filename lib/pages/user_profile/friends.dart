@@ -27,6 +27,7 @@ class _FriendsPageState extends State<FriendsPage> {
   List<UserProfileInfo> _searchResult = [];
   List<UserProfileInfo> _friends = [];
   List<UserProfileInfo> _requests = [];
+  List<FriendRequest> _requestsData = [];
 
   final Map<String, _RequestButtonState> _requestButtonStates = {};
 
@@ -72,6 +73,7 @@ class _FriendsPageState extends State<FriendsPage> {
     }
 
     setState(() {
+      _requestsData = requests;
       _requests = userInfoList;
       for (final user in requests) {
         _requestButtonStates[user.fromId] = _RequestButtonState.request;
@@ -247,7 +249,15 @@ class _FriendsPageState extends State<FriendsPage> {
       title: Text(user.name),
       trailing: ElevatedButton(
         onPressed: () {
-          FriendService.acceptRequest(_selfUser.uid, user.uid);
+          FriendService.acceptRequest(
+            _requestsData
+                .where(
+                  (request) =>
+                      request.fromId == user.uid &&
+                      request.toId == _selfUser.uid,
+                )
+                .first,
+          );
           setState(() {
             _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
 
