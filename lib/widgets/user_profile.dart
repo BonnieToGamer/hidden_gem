@@ -198,7 +198,13 @@ class _UserProfileState extends State<UserProfile> {
   void _onTapFriends() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FriendsPage()),
+      MaterialPageRoute(
+        builder: (context) => FriendsPage(newFriendCallback: newFriendCallback),
+      ),
     );
+  }
+
+  void newFriendCallback() {
+    setState(() {});
   }
 }

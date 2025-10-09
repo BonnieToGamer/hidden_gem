@@ -29,9 +29,7 @@ class _OwnUserProfileState extends State<OwnUserProfile> {
     await FriendService.acceptSentRequests(user.uid);
   }
 
-  void newFriendCallback() {
-    setState(() {});
-  }
+  void newFriendCallback() {}
 
   @override
   Widget build(BuildContext context) {
