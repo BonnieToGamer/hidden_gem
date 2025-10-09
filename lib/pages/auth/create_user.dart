@@ -103,6 +103,11 @@ class _CreateUserState extends State<CreateUser> {
 
     if (!mounted) return;
 
+    await AuthService.signOut();
+    await AuthService.signInUser(widget.email, widget.password);
+
+    if (!mounted) return;
+
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
         builder: (context) => Authenticate(forward: () => HomePage())), (
         _) => false);

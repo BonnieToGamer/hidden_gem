@@ -21,8 +21,8 @@ class AuthService {
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  static Stream<AuthState> get userChanges {
-    return _auth.userChanges().map<AuthState>((user) {
+  static Stream<AuthState> get authStateChanges {
+    return _auth.authStateChanges().map<AuthState>((user) {
       if (user != null) {
         return AuthState.authenticated(user);
       } else {
