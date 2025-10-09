@@ -132,6 +132,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               content: Text("Something went wrong sending the email!"),
             );
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            print("Error sending email: $err");
             return;
           }
 
@@ -141,7 +142,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         },
-        child: const Text("Sign in"),
+        child: const Text("Send"),
       ),
     );
   }
