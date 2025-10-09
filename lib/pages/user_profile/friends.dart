@@ -205,29 +205,43 @@ class _FriendsPageState extends State<FriendsPage> {
         ),
       ),
       title: Text(user.name),
-      trailing: _requestButtonStates[user.uid] != _RequestButtonState.addFriend
-          ? Text(
-              _requestButtonStates[user.uid] ==
-                      _RequestButtonState.alreadyFriends
-                  ? ""
-                  : "Request sent",
-            )
-          : ElevatedButton(
-              onPressed: () {
-                if (_requestButtonStates[user.uid] ==
-                    _RequestButtonState.sentRequest) {
-                  return;
-                }
-
-                FriendService.createFriendRequest(_selfUser.uid, user.uid);
-                setState(() {
-                  _requestButtonStates[user.uid] =
-                      _RequestButtonState.sentRequest;
-                });
-              },
-              child: Text("Add friend"),
-            ),
+      trailing: _friendStatus(user),
     );
+  }
+
+  Widget _friendStatus(UserProfileInfo user) {
+    if (_requestButtonStates[user.uid] != _RequestButtonState.addFriend) {
+      if (_requestButtonStates[user.uid] ==
+          _RequestButtonState.alreadyFriends) {
+        return ElevatedButton(onPressed: () async {
+          await FriendService.removeFriend(_selfUser.uid, user.uid);
+
+          await _refreshAllFriendData();
+
+          setState(() {
+            _requests.remove(user);
+            _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
+          });
+        }, child: const Text("Remove friend")); // Already friends
+      } else {
+        return const Text("Request sent"); // Request already sent
+      }
+    } else {
+      return ElevatedButton(
+        onPressed: () {
+          if (_requestButtonStates[user.uid] ==
+              _RequestButtonState.sentRequest) {
+            return; // Do nothing if already sent
+          }
+
+          FriendService.createFriendRequest(_selfUser.uid, user.uid);
+          setState(() {
+            _requestButtonStates[user.uid] = _RequestButtonState.sentRequest;
+          });
+        },
+        child: const Text("Add friend"),
+      );
+    }
   }
 
   Widget _addFriendWidget(UserProfileInfo user) {
