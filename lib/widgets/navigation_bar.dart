@@ -6,13 +6,24 @@ import 'package:hidden_gem/pages/user_profile/own_user_profile.dart';
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
 
+  static final PageStorageBucket _bucket = PageStorageBucket();
+
+  static final HomePage _homeMap = HomePage(key: PageStorageKey("home"));
+  static final CreatePost _createPost = CreatePost(
+    key: PageStorageKey("createPost"),
+  );
+  static final OwnUserProfile _ownUserProfile = OwnUserProfile(
+    key: PageStorageKey("profile"),
+  );
+
   const CustomNavigationBar({super.key, required this.currentIndex});
 
   void _move(BuildContext context, Widget newWidget) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => newWidget,
+        pageBuilder: (_, __, ___) =>
+            PageStorage(bucket: _bucket, child: newWidget),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
@@ -27,11 +38,11 @@ class CustomNavigationBar extends StatelessWidget {
       selectedIndex: currentIndex,
       onDestinationSelected: (int index) {
         if (index == 0) {
-          _move(context, HomePage());
+          _move(context, _homeMap);
         } else if (index == 1) {
-          _move(context, CreatePost());
+          _move(context, _createPost);
         } else if (index == 2) {
-          _move(context, OwnUserProfile());
+          _move(context, _ownUserProfile);
         }
       },
 
