@@ -11,7 +11,9 @@ import 'package:hidden_gem/services/user_service.dart';
 import 'package:provider/provider.dart';
 
 class FriendsPage extends StatefulWidget {
-  FriendsPage({super.key});
+  final Function() newFriendCallback;
+
+  const FriendsPage({super.key, required this.newFriendCallback});
 
   @override
   State<FriendsPage> createState() => _FriendsPageState();
@@ -37,9 +39,13 @@ class _FriendsPageState extends State<FriendsPage> {
 
     _searchController = TextEditingController();
     _selfUser = Provider.of<AuthState>(context, listen: false).user!;
-    _loadFriends();
-    _loadSentRequests();
-    _loadRequests();
+    _refreshAllFriendData();
+  }
+
+  Future<void> _refreshAllFriendData() async {
+    await _loadFriends();
+    await _loadSentRequests();
+    await _loadRequests();
   }
 
   Future<void> _loadFriends() async {
@@ -248,8 +254,8 @@ class _FriendsPageState extends State<FriendsPage> {
       ),
       title: Text(user.name),
       trailing: ElevatedButton(
-        onPressed: () {
-          FriendService.acceptRequest(
+        onPressed: () async {
+          await FriendService.acceptRequest(
             _requestsData
                 .where(
                   (request) =>
@@ -258,11 +264,15 @@ class _FriendsPageState extends State<FriendsPage> {
                 )
                 .first,
           );
-          setState(() {
-            _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
 
+          await _refreshAllFriendData();
+
+          setState(() {
             _requests.remove(user);
+            _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
           });
+
+          widget.newFriendCallback.call();
         },
         child: Text("Accept request"),
       ),

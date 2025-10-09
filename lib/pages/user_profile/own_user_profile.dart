@@ -29,6 +29,10 @@ class _OwnUserProfileState extends State<OwnUserProfile> {
     await FriendService.acceptSentRequests(user.uid);
   }
 
+  void newFriendCallback() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthState>(context, listen: false).user!;
@@ -41,7 +45,10 @@ class _OwnUserProfileState extends State<OwnUserProfile> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => FriendsPage()),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      FriendsPage(newFriendCallback: newFriendCallback),
+                ),
               );
             },
             icon: Icon(Icons.person, color: Theme.of(context).primaryColor),
