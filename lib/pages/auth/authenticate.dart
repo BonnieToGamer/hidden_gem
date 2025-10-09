@@ -16,7 +16,7 @@ class Authenticate extends StatelessWidget {
     final state = Provider.of<AuthState>(context);
 
     if (state.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(body: const Center(child: CircularProgressIndicator()));
     }
 
     if (state.user != null) {
@@ -24,7 +24,8 @@ class Authenticate extends StatelessWidget {
         future: loadInitialFriendsData(state.user!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Scaffold(
+                body: const Center(child: CircularProgressIndicator()));
           }
 
           return forward();
