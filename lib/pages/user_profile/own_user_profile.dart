@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/pages/user_profile/friends.dart';
 import 'package:hidden_gem/pages/user_profile/settings.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
@@ -21,6 +22,17 @@ class OwnUserProfile extends StatelessWidget {
       appBar: AppBar(
         title: Text("${user.displayName}'s profile"),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FriendsPage()),
+              );
+            },
+            icon: Icon(Icons.person, color: Theme
+                .of(context)
+                .primaryColor),
+          ),
           IconButton(
             onPressed: () {
               Navigator.push(

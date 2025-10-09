@@ -21,9 +21,13 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  late Future<List<UserProfileInfo>> _friendsFuture;
+
   @override
   void initState() {
     super.initState();
+
+    _friendsFuture = FriendService.getFriends(widget.user.uid);
   }
 
   @override
@@ -83,12 +87,11 @@ class _UserProfileState extends State<UserProfile> {
                           child: CachedNetworkImage(
                             imageUrl: imageUrl[0],
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                            const Center(
+                            placeholder: (context, url) => const Center(
                               child: CircularProgressIndicator(),
                             ),
                             errorWidget: (context, url, error) =>
-                            const Center(child: Icon(Icons.error)),
+                                const Center(child: Icon(Icons.error)),
                           ),
                         ),
                       );
@@ -104,9 +107,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Padding buildProfileHeader(int postCount) {
-    final user = Provider
-        .of<AuthState>(context, listen: false)
-        .user!;
+    final user = Provider.of<AuthState>(context, listen: false).user!;
     final ownProfile = user.uid == widget.user.uid;
 
     return Padding(
@@ -155,26 +156,30 @@ class _UserProfileState extends State<UserProfile> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            FutureBuilder(future: FriendService.getFriends(
-                                widget.user.uid), builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
+                            FutureBuilder(
+                              future: _friendsFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Text(
+                                    "0",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                }
+
+                                int amount = 0;
+                                if (snapshot.hasData) {
+                                  amount = snapshot.data!.length;
+                                }
+
                                 return Text(
-                                  "0",
+                                  "$amount",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 );
-                              }
-
-                              int amount = 0;
-                              if (snapshot.hasData) {
-                                amount = snapshot.data!.length;
-                              }
-
-                              return Text(
-                                "$amount",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              );
-                            }),
+                              },
+                            ),
                             Text("friends"),
                           ],
                         ),
@@ -192,6 +197,8 @@ class _UserProfileState extends State<UserProfile> {
 
   void _onTapFriends() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => FriendsPage()));
+      context,
+      MaterialPageRoute(builder: (context) => FriendsPage()),
+    );
   }
 }
