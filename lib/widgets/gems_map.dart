@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
@@ -83,7 +84,8 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
         initialZoom: _currentZoom,
         onPositionChanged: (mapCamera, hasGesture) {
           if (widget.onTapCallback != null) widget.onTapCallback!(mapCamera.center);
-        }
+        },
+
       ),
       children: [
         TileLayer(
@@ -92,17 +94,6 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
         ),
           MarkerLayer(markers: [
             ...?widget.markers,
-            ?(widget.hasLocationPermission && _preciseLocation != null)
-                ? Marker(
-              point: _preciseLocation!,
-              width: 40,
-              height: 40,
-              rotate: true,
-              child: CircleAvatar(
-                child: Icon(Icons.person),
-              ),
-            )
-                : null,
           ]),
         RichAttributionWidget(
           attributions: [
@@ -117,7 +108,11 @@ class _MapWidgetState extends State<GemsMap> with SingleTickerProviderStateMixin
             )
           ],
           showFlutterMapAttribution: false,
-        )
+        ),
+        CurrentLocationLayer(
+          alignPositionOnUpdate: AlignOnUpdate.never,
+          alignDirectionOnUpdate: AlignOnUpdate.never,
+        ),
       ],
     );
   }

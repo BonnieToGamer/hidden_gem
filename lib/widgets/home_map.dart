@@ -65,6 +65,7 @@ class _HomeMapState extends State<HomeMap> {
           },
           child: Icon(
             Icons.location_pin,
+            size: 42,
             color: Theme.of(context).primaryColor,
           ),
         ),
