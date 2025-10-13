@@ -37,28 +37,42 @@ class _FeedState extends State<Feed> {
     super.dispose();
   }
 
+  Future<void> _refreshData() async {
+    PostsService.resetPostPagination();
+
+    setState(() {
+      _posts.clear();
+      _hasMore = true;
+    });
+
+    await _fetchMorePosts();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      key: PageStorageKey("feed_list_view"),
-      controller: _scrollController,
-      itemCount: _posts.length + 1,
-      cacheExtent: 1000,
-      itemBuilder: (context, index) {
-        if (index == _posts.length && !_isLoading && _hasMore) {
-          _fetchMorePosts();
-        }
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: ListView.builder(
+        key: PageStorageKey("feed_list_view"),
+        controller: _scrollController,
+        itemCount: _posts.length + 1,
+        cacheExtent: 1000,
+        itemBuilder: (context, index) {
+          if (index == _posts.length && !_isLoading && _hasMore) {
+            _fetchMorePosts();
+          }
 
-        if (index < _posts.length) {
-          return PostWidget(key: ValueKey(_posts[index].postId!),
-              post: _posts[index],
-              inlineComments: false);
-        } else if (_hasMore) {
-          return const Center(child: CircularProgressIndicator());
-        } else {
-          return SizedBox();
-        }
-      },
+          if (index < _posts.length) {
+            return PostWidget(key: ValueKey(_posts[index].postId!),
+                post: _posts[index],
+                inlineComments: false);
+          } else if (_hasMore) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return SizedBox();
+          }
+        },
+      ),
     );
   }
 
