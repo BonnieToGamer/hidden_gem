@@ -10,6 +10,18 @@ class FriendService {
 
   const FriendService._();
 
+  static Stream<List<String>> getFriendIdsStream(String userId) {
+    return _db
+        .collection("users")
+        .doc(userId)
+        .collection("friends")
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => doc['friendId'] as String).toList(),
+        );
+  }
+
   static Future<void> createFriendRequest(String fromId, String toId) async {
     final request = FriendRequest(
       id: "",
@@ -43,8 +55,10 @@ class FriendService {
         .toList();
   }
 
-  static Future<List<UserProfileInfo>> searchUsers(String query,
-      String ownName) async {
+  static Future<List<UserProfileInfo>> searchUsers(
+    String query,
+    String ownName,
+  ) async {
     // https://stackoverflow.com/a/56815787/16052290
     return (await _db
             .collection('users')

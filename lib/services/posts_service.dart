@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/comment.dart';
+import 'package:hidden_gem/models/friend.dart';
 import 'package:hidden_gem/models/like.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/models/user_info.dart';
@@ -13,19 +14,8 @@ class PostsService {
   static final String _collectionPath = "posts";
   static DocumentSnapshot? _lastPostDocument;
   static DocumentSnapshot? _lastCommentDocument;
-  static final List<String> _friendIds = [];
 
   const PostsService._();
-
-  static Future<void> getFriendIds(String userId) async {
-    final friends = await FriendService.getFriends(userId);
-
-    _friendIds.clear();
-
-    for (final friend in friends) {
-      _friendIds.add(friend.uid);
-    }
-  }
 
   static Future<void> addPost(Post post) async {
     await _db.collection(_collectionPath).add(post.toMap());
@@ -56,36 +46,33 @@ class PostsService {
     }
   }
 
-  static Stream<List<Post>> getAllPosts(String userId) {
-    // Query public posts
-    final publicStream = _db
-        .collection('posts')
-        .where('isPublic', isEqualTo: true)
-        .where(
-        'authorId', whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
-        .orderBy('timestamp', descending: true)
-        .snapshots();
+  static Stream<List<Post>> getAllPosts(String userId,
+      Stream<List<String>> friendIdsStream,) {
+    return friendIdsStream.switchMap((friendIds) {
+      final publicStream = FirebaseFirestore.instance
+          .collection('posts')
+          .where('isPublic', isEqualTo: true)
+          .where(
+        'authorId',
+        whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+      )
+          .orderBy('timestamp', descending: true)
+          .snapshots();
 
-    // Query posts by current user
-    final ownStream = _db
-        .collection('posts')
-        .where('authorId', isEqualTo: userId)
-        .orderBy('timestamp', descending: true)
-        .snapshots();
+      final ownStream = FirebaseFirestore.instance
+          .collection('posts')
+          .where('authorId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .snapshots();
 
-    return Rx.combineLatest2<QuerySnapshot, QuerySnapshot, List<Post>>(
-      publicStream,
-      ownStream,
-      (publicSnap, ownSnap) {
+      return Rx.combineLatest2(publicStream, ownStream, (publicSnap, ownSnap) {
         final allDocs = [...publicSnap.docs, ...ownSnap.docs];
-
-        // Remove duplicates by ID
         final uniqueDocs = {
           for (var doc in allDocs) doc.id: doc,
         }.values.toList();
         return uniqueDocs.map((doc) => Post.fromFirestore(doc)).toList();
-      },
-    );
+      });
+    });
   }
 
   static Stream<List<Post>> getOwnPosts(String userId) {
@@ -102,21 +89,26 @@ class PostsService {
     );
   }
 
-  static Stream<List<Post>> getUsersPosts(String userId) {
-    // Query posts by current user
-    final ownStream = _db
-        .collection('posts')
-        .where('authorId', isEqualTo: userId)
-        .where(
-        'authorId', whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
-        .where('isPublic', isEqualTo: true)
-        .orderBy('timestamp', descending: true)
-        .snapshots();
+  static Stream<List<Post>> getUsersPosts(String userId,
+      Stream<List<String>> friendIdsStream,) {
+    return friendIdsStream.switchMap((friendIds) {
+      // Query posts by current user
+      final ownStream = _db
+          .collection('posts')
+          .where('authorId', isEqualTo: userId)
+          .where(
+        'authorId',
+        whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+      )
+          .where('isPublic', isEqualTo: true)
+          .orderBy('timestamp', descending: true)
+          .snapshots();
 
-    return ownStream.map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList(),
-    );
+      return ownStream.map(
+            (snapshot) =>
+            snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList(),
+      );
+    });
   }
 
   // updates a post
@@ -152,11 +144,14 @@ class PostsService {
     _lastPostDocument = null;
   }
 
-  static Future<List<Post>> getPagedPosts(String uid, {int limit = 10}) async {
+  static Future<List<Post>> getPagedPosts(String uid, List<String> friendIds,
+      {int limit = 10}) async {
     Query query = _db
         .collection("posts")
         .where(
-        "authorId", whereIn: _friendIds.isEmpty ? ['__dummy__'] : _friendIds)
+      "authorId",
+      whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+    )
         .where("isPublic", isEqualTo: true)
         .orderBy("timestamp", descending: true)
         .limit(limit);
@@ -204,7 +199,7 @@ class PostsService {
         .snapshots()
         .map(
           (snapshot) =>
-      snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList()[0],
+          snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList()[0],
     );
   }
 

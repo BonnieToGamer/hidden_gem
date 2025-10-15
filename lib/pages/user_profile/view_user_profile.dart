@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/user_info.dart';
+import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/user_profile.dart';
 
@@ -13,7 +14,9 @@ class ViewUserProfile extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text("${user.name}'s profile")),
       body: UserProfile(
-          user: user, postStream: PostsService.getUsersPosts(user.uid)),
+          user: user,
+          postStream: PostsService.getUsersPosts(
+              user.uid, FriendService.getFriendIdsStream(user.uid))),
     );
   }
 }

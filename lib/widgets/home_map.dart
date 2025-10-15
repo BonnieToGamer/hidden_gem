@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/pages/post/view_post.dart';
 import 'package:hidden_gem/services/auth_service.dart';
+import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/geo_locator_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gems_map.dart';
@@ -25,7 +26,10 @@ class _HomeMapState extends State<HomeMap> {
     final user = Provider.of<AuthState>(context, listen: false).user!;
 
     return StreamBuilder<List<Post>>(
-      stream: PostsService.getAllPosts(user.uid),
+      stream: PostsService.getAllPosts(
+        user.uid,
+        FriendService.getFriendIdsStream(user.uid),
+      ),
       builder: (context, snapshot) {
         return GemsMap(
           hasLocationPermission: GeolocatorService.hasLocationPermission,

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/models/post.dart';
 import 'package:hidden_gem/services/auth_service.dart';
+import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/post_widget.dart';
 import 'package:provider/provider.dart';
@@ -90,6 +91,7 @@ class _FeedState extends State<Feed> {
 
     List<Post> newPosts = await PostsService.getPagedPosts(
       _user.uid,
+      await FriendService.getFriendIdsStream(_user.uid).first,
       limit: 10,
     );
 

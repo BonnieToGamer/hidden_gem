@@ -41,7 +41,6 @@ class Authenticate extends StatelessWidget {
   }
 
   Future<void> loadInitialFriendsData(User user) async {
-    await PostsService.getFriendIds(user.uid);
     await FriendService.acceptSentRequests(user.uid);
     await FriendService.handleDeletedRequests(user.uid);
   }

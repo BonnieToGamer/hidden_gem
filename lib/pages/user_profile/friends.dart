@@ -44,12 +44,13 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> _refreshAllFriendData() async {
-    await _checkFriendRequests();
-    await _checkDeletedRequests();
+    final user = Provider.of<AuthState>(context, listen: false).user!;
+
+    await _checkFriendRequests(user);
+    await _checkDeletedRequests(user);
     await _loadFriends();
     await _loadSentRequests();
     await _loadRequests();
-    await PostsService.getFriendIds(_selfUser.uid);
   }
 
   Future<void> _loadFriends() async {
@@ -95,17 +96,11 @@ class _FriendsPageState extends State<FriendsPage> {
     });
   }
 
-  Future<void> _checkFriendRequests() async {
-    final user = Provider
-        .of<AuthState>(context, listen: false)
-        .user!;
+  Future<void> _checkFriendRequests(User user) async {
     await FriendService.acceptSentRequests(user.uid);
   }
 
-  Future<void> _checkDeletedRequests() async {
-    final user = Provider
-        .of<AuthState>(context, listen: false)
-        .user!;
+  Future<void> _checkDeletedRequests(User user) async {
     await FriendService.handleDeletedRequests(user.uid);
   }
 
@@ -163,7 +158,9 @@ class _FriendsPageState extends State<FriendsPage> {
     _debounce = Timer(const Duration(milliseconds: 400), () async {
       if (query.isNotEmpty) {
         final searchResult = await FriendService.searchUsers(
-            query, _selfUser.displayName!);
+          query,
+          _selfUser.displayName!,
+        );
 
         setState(() {
           _searchResult = searchResult;
@@ -236,16 +233,21 @@ class _FriendsPageState extends State<FriendsPage> {
     if (_requestButtonStates[user.uid] != _RequestButtonState.addFriend) {
       if (_requestButtonStates[user.uid] ==
           _RequestButtonState.alreadyFriends) {
-        return ElevatedButton(onPressed: () async {
-          await FriendService.removeFriend(_selfUser.uid, user.uid);
+        return ElevatedButton(
+          onPressed: () async {
+            await FriendService.removeFriend(_selfUser.uid, user.uid);
 
-          await _refreshAllFriendData();
+            await _refreshAllFriendData();
 
-          setState(() {
-            _requests.remove(user);
-            _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
-          });
-        }, child: const Text("Remove friend")); // Already friends
+            if (!mounted) return;
+            setState(() {
+              _requests.remove(user);
+              _requestButtonStates[user.uid] =
+                  _RequestButtonState.alreadyFriends;
+            });
+          },
+          child: const Text("Remove friend"),
+        ); // Already friends
       } else {
         return const Text("Request sent"); // Request already sent
       }
@@ -304,6 +306,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
           await _refreshAllFriendData();
 
+          if (!mounted) return;
           setState(() {
             _requests.remove(user);
             _requestButtonStates[user.uid] = _RequestButtonState.alreadyFriends;
