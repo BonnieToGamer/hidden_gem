@@ -43,6 +43,8 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> _refreshAllFriendData() async {
+    await _checkFriendRequests();
+    await _checkDeletedRequests();
     await _loadFriends();
     await _loadSentRequests();
     await _loadRequests();
@@ -85,6 +87,20 @@ class _FriendsPageState extends State<FriendsPage> {
         _requestButtonStates[user.fromId] = _RequestButtonState.request;
       }
     });
+  }
+
+  Future<void> _checkFriendRequests() async {
+    final user = Provider
+        .of<AuthState>(context, listen: false)
+        .user!;
+    await FriendService.acceptSentRequests(user.uid);
+  }
+
+  Future<void> _checkDeletedRequests() async {
+    final user = Provider
+        .of<AuthState>(context, listen: false)
+        .user!;
+    await FriendService.handleDeletedRequests(user.uid);
   }
 
   @override

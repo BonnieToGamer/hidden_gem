@@ -165,42 +165,29 @@ class FriendService {
       final data = doc.data();
       if ((data['fromId'] == selfId && data['toId'] == otherId) ||
           (data['fromId'] == otherId && data['toId'] == selfId)) {
-        final request = FriendRequest.fromFirestore(doc);
-        final newRequest = FriendRequest(
-          id: request.id,
-          fromId: request.fromId,
-          toId: request.toId,
-          status: "removed",
-          timestamp: Timestamp.now(),
-        );
-
-        await collection.doc(doc.id).set(newRequest.toMap());
+        await collection.doc(doc.id).delete();
       }
     }
 
-    if (querySnapshot.docs.isEmpty) {
-      final request = FriendRequest(
-        id: "",
-        fromId: selfId,
-        toId: otherId,
-        status: "removed",
-        timestamp: Timestamp.now(),
-      );
+    final request = FriendRequest(
+      id: "",
+      fromId: selfId,
+      toId: otherId,
+      status: "removed",
+      timestamp: Timestamp.now(),
+    );
 
-      await collection.add(request.toMap());
-      await _db.collection("users").doc(selfId).collection("friends").doc(
-          otherId).delete();
-    }
+    await collection.add(request.toMap());
+    await _db
+        .collection("users")
+        .doc(selfId)
+        .collection("friends")
+        .doc(otherId)
+        .delete();
   }
 
   static Future<void> handleDeletedRequests(String uid) async {
     final collection = FirebaseFirestore.instance.collection('friendRequests');
-
-    // Query where uid is the sender
-    final fromQuery = await collection
-        .where('fromId', isEqualTo: uid)
-        .where('status', isEqualTo: 'removed')
-        .get();
 
     // Query where uid is the receiver
     final toQuery = await collection
@@ -208,17 +195,17 @@ class FriendService {
         .where('status', isEqualTo: 'removed')
         .get();
 
-    final allDocs = [...fromQuery.docs, ...toQuery.docs].map((doc) =>
-        FriendRequest.fromFirestore(doc));
+    final allDocs = [
+      ...toQuery.docs,
+    ].map((doc) => FriendRequest.fromFirestore(doc));
 
     for (final request in allDocs) {
-      if (request.fromId != uid && request.toId == uid) {
-        await _db.collection("users").doc(uid).collection("friends").doc(
-            request.fromId).delete();
-      } else if (request.fromId == uid && request.toId != uid) {
-        await _db.collection("users").doc(uid).collection("friends").doc(
-            request.toId).delete();
-      }
+      await _db
+          .collection("users")
+          .doc(uid)
+          .collection("friends")
+          .doc(request.fromId)
+          .delete();
 
       await _db.collection("friendRequests").doc(request.id).delete();
     }

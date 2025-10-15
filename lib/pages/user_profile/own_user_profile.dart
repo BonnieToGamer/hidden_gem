@@ -22,12 +22,6 @@ class _OwnUserProfileState extends State<OwnUserProfile>
   @override
   void initState() {
     super.initState();
-    _checkFriendRequests();
-  }
-
-  Future<void> _checkFriendRequests() async {
-    final user = Provider.of<AuthState>(context, listen: false).user!;
-    await FriendService.acceptSentRequests(user.uid);
   }
 
   void newFriendCallback() {}
