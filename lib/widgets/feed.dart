@@ -58,16 +58,21 @@ class _FeedState extends State<Feed> {
         itemCount: _posts.length + 1,
         cacheExtent: 1000,
         itemBuilder: (context, index) {
-          if (index == _posts.length && !_isLoading && _hasMore) {
-            _fetchMorePosts();
-          }
-
           if (index < _posts.length) {
-            return PostWidget(key: ValueKey(_posts[index].postId!),
-                post: _posts[index],
-                inlineComments: false);
+            return PostWidget(
+              key: ValueKey(_posts[index].postId!),
+              post: _posts[index],
+              inlineComments: false,
+            );
           } else if (_hasMore) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: TextButton(
+                onPressed: () {
+                  _fetchMorePosts();
+                },
+                child: Text("Load more"),
+              ),
+            );
           } else {
             return SizedBox();
           }
