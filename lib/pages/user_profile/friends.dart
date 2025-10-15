@@ -7,6 +7,7 @@ import 'package:hidden_gem/models/friendRequest.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/friend_service.dart';
+import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
 import 'package:provider/provider.dart';
 
@@ -48,10 +49,13 @@ class _FriendsPageState extends State<FriendsPage> {
     await _loadFriends();
     await _loadSentRequests();
     await _loadRequests();
+    await PostsService.getFriendIds(_selfUser.uid);
   }
 
   Future<void> _loadFriends() async {
     final friends = await FriendService.getFriends(_selfUser.uid);
+
+    if (!mounted) return;
     setState(() {
       _friends = friends;
       for (final user in friends) {
@@ -63,6 +67,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Future<void> _loadSentRequests() async {
     final requests = await FriendService.sentRequests(_selfUser.uid);
 
+    if (!mounted) return;
     setState(() {
       for (final user in requests) {
         _requestButtonStates[user.toId] = _RequestButtonState.sentRequest;
@@ -80,6 +85,7 @@ class _FriendsPageState extends State<FriendsPage> {
       userInfoList.add(userInfo);
     }
 
+    if (!mounted) return;
     setState(() {
       _requestsData = requests;
       _requests = userInfoList;
