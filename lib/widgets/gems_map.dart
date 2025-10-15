@@ -161,7 +161,10 @@ class _MapWidgetState extends State<GemsMap>
             size: const Size(40, 40),
             alignment: Alignment.center,
             padding: const EdgeInsets.all(50),
-            maxZoom: 15,
+            maxZoom: 16,
+            zoomToBoundsOnClick: true,
+            showPolygon: false,
+            rotate: true,
             markers: [...?widget.markers],
             builder: (context, markers) {
               return Container(
