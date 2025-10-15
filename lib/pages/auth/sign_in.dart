@@ -1,4 +1,5 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
@@ -196,10 +197,17 @@ class _SignInState extends State<SignIn> {
                   return;
                 }
 
-                await AuthService.signInUser(
-                  _emailController.text,
-                  _passwordController.text,
-                );
+                try {
+                  await AuthService.signInUser(
+                    _emailController.text,
+                    _passwordController.text,
+                  );
+                } on FirebaseAuthException catch (e) {
+                  if (!mounted) return;
+                  final snackBar = SnackBar(
+                      content: const Text("There was an error signing in."));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
 
                 if (!mounted) return;
 
