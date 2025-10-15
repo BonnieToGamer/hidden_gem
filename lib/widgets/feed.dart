@@ -56,6 +56,7 @@ class _FeedState extends State<Feed> {
         key: PageStorageKey("feed_list_view"),
         controller: _scrollController,
         itemCount: _posts.length + 1,
+        physics: const AlwaysScrollableScrollPhysics(),
         cacheExtent: 1000,
         itemBuilder: (context, index) {
           if (index < _posts.length) {

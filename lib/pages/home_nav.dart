@@ -14,7 +14,6 @@ class HomeNavigation extends StatefulWidget {
 class _HomeNavigationState extends State<HomeNavigation> {
   late int _selectedPageIndex;
   late List<Widget> _pages;
-  late PageController _pageController;
 
   @override
   void initState() {
@@ -22,23 +21,18 @@ class _HomeNavigationState extends State<HomeNavigation> {
 
     _selectedPageIndex = 0;
     _pages = [HomePage(), CreatePost(), OwnUserProfile()];
-
-    _pageController = PageController(initialPage: _selectedPageIndex);
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: NeverScrollableScrollPhysics(),
+      body: IndexedStack(
+        index: _selectedPageIndex,
         children: _pages,
       ),
       bottomNavigationBar: CustomNavigationBar(
@@ -51,7 +45,6 @@ class _HomeNavigationState extends State<HomeNavigation> {
   void _onTapCallback(int index) {
     setState(() {
       _selectedPageIndex = index;
-      _pageController.jumpToPage(index);
     });
   }
 }

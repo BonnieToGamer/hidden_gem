@@ -10,17 +10,6 @@ class CustomNavigationBar extends StatelessWidget {
   const CustomNavigationBar(
       {super.key, required this.currentIndex, required this.onTapCallback});
 
-  void _move(BuildContext context, Widget newWidget) {
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => newWidget,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
