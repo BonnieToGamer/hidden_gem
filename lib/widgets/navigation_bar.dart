@@ -7,32 +7,34 @@ class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTapCallback;
 
-  const CustomNavigationBar(
-      {super.key, required this.currentIndex, required this.onTapCallback});
+  const CustomNavigationBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTapCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      height: 40,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTapCallback,
-
-      destinations: const <Widget>[
-        NavigationDestination(
+    return BottomNavigationBar(
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      currentIndex: currentIndex,
+      onTap: onTapCallback,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: "home",
+            activeIcon: Icon(Icons.home),
+            label: "home"
         ),
-        NavigationDestination(
+        BottomNavigationBarItem(
           icon: Icon(Icons.add_outlined),
-          selectedIcon: Icon(Icons.add),
-          label: "add post",
+            activeIcon: Icon(Icons.add),
+            label: "post"
         ),
-        NavigationDestination(
+        BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: "profile",
+            activeIcon: Icon(Icons.person),
+            label: "profile"
         ),
       ],
     );
