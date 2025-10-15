@@ -14,7 +14,8 @@ class HomePage extends StatefulWidget {
 
 enum _HomeState { Map, Feed }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin<HomePage> {
   _HomeState _state = _HomeState.Map;
   bool? _hasPermission;
 
@@ -56,6 +57,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     Widget child;
 
     if (_hasPermission == null) {
@@ -72,7 +75,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
+      // bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
     );
   }
 
@@ -122,4 +125,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

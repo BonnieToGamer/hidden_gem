@@ -17,7 +17,8 @@ class CreatePost extends StatefulWidget {
   State<StatefulWidget> createState() => _CreatePostState();
 }
 
-class _CreatePostState extends State<CreatePost> {
+class _CreatePostState extends State<CreatePost>
+    with AutomaticKeepAliveClientMixin<CreatePost> {
   final int _sizePerPage = 64;
 
   bool _loading = false;
@@ -125,6 +126,7 @@ class _CreatePostState extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return selectImagesState();
   }
 
@@ -136,7 +138,7 @@ class _CreatePostState extends State<CreatePost> {
         verticalDirection: VerticalDirection.down,
         children: [Expanded(child: _buildGallery())],
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
+      // bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -254,4 +256,7 @@ class _CreatePostState extends State<CreatePost> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

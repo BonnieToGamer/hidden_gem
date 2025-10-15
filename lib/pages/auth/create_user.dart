@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
+import 'package:hidden_gem/pages/home_nav.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/auth_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
@@ -109,7 +110,7 @@ class _CreateUserState extends State<CreateUser> {
     if (!mounted) return;
 
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-        builder: (context) => Authenticate(forward: () => HomePage())), (
+        builder: (context) => Authenticate(forward: () => HomeNavigation())), (
         _) => false);
   }
 }

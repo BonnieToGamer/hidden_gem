@@ -5,8 +5,10 @@ import 'package:hidden_gem/pages/user_profile/own_user_profile.dart';
 
 class CustomNavigationBar extends StatelessWidget {
   final int currentIndex;
+  final Function(int) onTapCallback;
 
-  const CustomNavigationBar({super.key, required this.currentIndex});
+  const CustomNavigationBar(
+      {super.key, required this.currentIndex, required this.onTapCallback});
 
   void _move(BuildContext context, Widget newWidget) {
     Navigator.pushReplacement(
@@ -25,15 +27,7 @@ class CustomNavigationBar extends StatelessWidget {
       height: 40,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: currentIndex,
-      onDestinationSelected: (int index) {
-        if (index == 0) {
-          _move(context, HomePage());
-        } else if (index == 1) {
-          _move(context, CreatePost());
-        } else if (index == 2) {
-          _move(context, OwnUserProfile());
-        }
-      },
+      onDestinationSelected: onTapCallback,
 
       destinations: const <Widget>[
         NavigationDestination(

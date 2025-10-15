@@ -20,20 +20,24 @@ class Authenticate extends StatelessWidget {
     }
 
     if (state.user != null) {
-      return FutureBuilder(
-        future: loadInitialFriendsData(state.user!),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-                body: const Center(child: CircularProgressIndicator()));
-          }
-
-          return forward();
-        },
-      );
+      return buildForward(state);
     }
 
     return SignIn();
+  }
+
+  FutureBuilder<void> buildForward(AuthState state) {
+    return FutureBuilder(
+      future: loadInitialFriendsData(state.user!),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+              body: const Center(child: CircularProgressIndicator()));
+        }
+
+        return forward();
+      },
+    );
   }
 
   Future<void> loadInitialFriendsData(User user) async {

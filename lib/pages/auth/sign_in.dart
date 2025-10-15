@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
 import 'package:hidden_gem/pages/auth/forgot_password.dart';
+import 'package:hidden_gem/pages/home_nav.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/auth/sign_up.dart';
 import 'package:hidden_gem/services/auth_service.dart';
@@ -206,7 +207,7 @@ class _SignInState extends State<SignIn> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        Authenticate(forward: () => HomePage()),
+                        Authenticate(forward: () => HomeNavigation()),
                   ),
                   (_) => false,
                 );

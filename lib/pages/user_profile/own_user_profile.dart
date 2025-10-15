@@ -17,7 +17,8 @@ class OwnUserProfile extends StatefulWidget {
   State<OwnUserProfile> createState() => _OwnUserProfileState();
 }
 
-class _OwnUserProfileState extends State<OwnUserProfile> {
+class _OwnUserProfileState extends State<OwnUserProfile>
+    with AutomaticKeepAliveClientMixin<OwnUserProfile> {
   @override
   void initState() {
     super.initState();
@@ -33,6 +34,7 @@ class _OwnUserProfileState extends State<OwnUserProfile> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final user = Provider.of<AuthState>(context, listen: false).user!;
 
     return Scaffold(
@@ -66,7 +68,10 @@ class _OwnUserProfileState extends State<OwnUserProfile> {
         user: UserProfileInfo.fromUser(user),
         postStream: PostsService.getOwnPosts(user.uid),
       ),
-      bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
+      // bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
