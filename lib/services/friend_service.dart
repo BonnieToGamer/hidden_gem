@@ -43,7 +43,8 @@ class FriendService {
         .toList();
   }
 
-  static Future<List<UserProfileInfo>> searchUsers(String query) async {
+  static Future<List<UserProfileInfo>> searchUsers(String query,
+      String ownName) async {
     // https://stackoverflow.com/a/56815787/16052290
     return (await _db
             .collection('users')
@@ -53,6 +54,7 @@ class FriendService {
             .get())
         .docs
         .map((doc) => UserProfileInfo.fromFirestore(doc))
+        .where((friend) => friend.name != ownName)
         .toList();
   }
 

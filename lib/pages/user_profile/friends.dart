@@ -156,7 +156,8 @@ class _FriendsPageState extends State<FriendsPage> {
 
     _debounce = Timer(const Duration(milliseconds: 400), () async {
       if (query.isNotEmpty) {
-        final searchResult = await FriendService.searchUsers(query);
+        final searchResult = await FriendService.searchUsers(
+            query, _selfUser.displayName!);
 
         setState(() {
           _searchResult = searchResult;
