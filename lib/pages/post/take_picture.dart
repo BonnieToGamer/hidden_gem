@@ -51,9 +51,6 @@ class _TakePictureState extends State<TakePicture> {
       body: Column(
         verticalDirection: VerticalDirection.down,
         children: [
-          _controller != null
-              ? Expanded(child: _cameraSLot())
-              : const Center(child: CircularProgressIndicator()),
           SizedBox(
             height: 100,
             child: ListView.builder(
@@ -97,6 +94,10 @@ class _TakePictureState extends State<TakePicture> {
               },
             ),
           ),
+          _controller != null
+              ? Expanded(child: _cameraSLot())
+              : const Center(child: CircularProgressIndicator()),
+          // SizedBox(height: 100)
         ],
       ),
       floatingActionButton: _images.isNotEmpty
@@ -121,8 +122,9 @@ class _TakePictureState extends State<TakePicture> {
   void _takePicture() async {
     if (takingPicture ||
         _controller == null ||
-        !_controller!.value.isInitialized)
+        !_controller!.value.isInitialized) {
       return;
+    }
 
     setState(() {
       takingPicture = true;
@@ -169,7 +171,7 @@ class _TakePictureState extends State<TakePicture> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(bottom: 35.0),
             child: MaterialButton(
               onPressed: _takePicture,
               child: Icon(Icons.circle_outlined, color: Colors.white, size: 50),
