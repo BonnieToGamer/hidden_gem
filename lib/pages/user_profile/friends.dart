@@ -54,7 +54,7 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> _loadFriends() async {
-    final friends = await FriendService.getFriends(_selfUser.uid);
+    final friends = await FriendService.getFriends(_selfUser.uid).first;
 
     if (!mounted) return;
     setState(() {

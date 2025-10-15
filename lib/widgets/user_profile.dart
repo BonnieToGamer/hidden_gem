@@ -21,7 +21,7 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  late Future<List<UserProfileInfo>> _friendsFuture;
+  late Stream<List<UserProfileInfo>> _friendsFuture;
 
   @override
   void initState() {
@@ -156,8 +156,8 @@ class _UserProfileState extends State<UserProfile> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            FutureBuilder(
-                              future: _friendsFuture,
+                            StreamBuilder(
+                              stream: _friendsFuture,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {

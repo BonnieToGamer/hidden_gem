@@ -4,6 +4,7 @@ import 'package:hidden_gem/models/friendRequest.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/services/user_service.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FriendService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -72,21 +73,23 @@ class FriendService {
         .toList();
   }
 
-  static Future<List<UserProfileInfo>> getFriends(String userId) async {
-    final friendData =
-        (await _db.collection("users").doc(userId).collection("friends").get())
-            .docs
-            .map((doc) => FriendData.fromFirestore(doc))
-            .toList();
+  static Stream<List<UserProfileInfo>> getFriends(String userId) {
+    return _db
+        .collection("users")
+        .doc(userId)
+        .collection("friends")
+        .snapshots()
+        .asyncMap((snapshot) async {
+          final friends = snapshot.docs
+              .map((doc) => FriendData.fromFirestore(doc))
+              .toList();
 
-    List<UserProfileInfo> users = [];
+          final profiles = await Future.wait(
+        friends.map((friend) => UserService.getUser(friend.friendId)),
+      );
 
-    for (final friend in friendData) {
-      final user = await UserService.getUser(friend.friendId);
-      users.add(user);
-    }
-
-    return users;
+          return profiles;
+        });
   }
 
   static Future<void> acceptRequest(FriendRequest request) async {
