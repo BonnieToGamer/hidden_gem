@@ -25,8 +25,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
       DeferredTab(child: HomePage()),
       DeferredTab(child: CreatePost()),
       DeferredTab(child: OwnUserProfile()),
-    ]}
-
+    ];
   @override
   void dispose() {
     super.dispose();

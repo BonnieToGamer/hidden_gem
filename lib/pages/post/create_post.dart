@@ -24,6 +24,7 @@ class _CreatePostState extends State<CreatePost>
   bool _loading = false;
   bool _loadingMore = false;
   bool _hasMoreToLoad = true;
+  bool _permissionDenied = false;
 
   AssetPathEntity? _path;
   List<AssetEntity>? _entities;
@@ -52,13 +53,8 @@ class _CreatePostState extends State<CreatePost>
     if (!ps.hasAccess) {
       setState(() {
         _loading = false;
+        _permissionDenied = true;
       });
-
-      final snackBar = SnackBar(content: const Text("Permission was denied"));
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 
@@ -79,12 +75,6 @@ class _CreatePostState extends State<CreatePost>
       setState(() {
         _loading = false;
       });
-
-      final snackBar = SnackBar(content: const Text("No images found"));
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
 
@@ -177,9 +167,8 @@ class _CreatePostState extends State<CreatePost>
                             }
 
                             print(
-                        "Key $index exists? ${_selectedGalleryImages
-                            .containsKey(index)}",
-                      );
+                              "Key $index exists? ${_selectedGalleryImages.containsKey(index)}",
+                            );
 
                             final file = await ent.file;
                             if (file != null) {
@@ -189,14 +178,14 @@ class _CreatePostState extends State<CreatePost>
                         }
 
                         Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NewPost(images: images),
-                    ),
-                  );
-                },
-                child: Icon(Icons.send),
-              )
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewPost(images: images),
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.send),
+                    )
                   : const SizedBox.shrink(key: ValueKey("empty")),
             ),
           ],
@@ -207,8 +196,16 @@ class _CreatePostState extends State<CreatePost>
 
   // Build the gallery widget.
   Widget _buildGallery() {
-    if (_loading || _path == null) {
+    if (_loading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_permissionDenied) {
+      return const Center(child: Text("Permission was denied"));
+    }
+
+    if (_path == null) {
+      return const Center(child: Text("No images found."));
     }
 
     return GridView.builder(
