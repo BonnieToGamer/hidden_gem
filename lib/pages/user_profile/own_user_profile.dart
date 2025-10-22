@@ -45,7 +45,7 @@ class _OwnUserProfileState extends State<OwnUserProfile>
                 ),
               );
             },
-            icon: Icon(Icons.person, color: Theme.of(context).primaryColor),
+            icon: Icon(Icons.group, color: Theme.of(context).primaryColor),
           ),
           IconButton(
             onPressed: () {

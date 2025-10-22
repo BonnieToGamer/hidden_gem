@@ -141,7 +141,7 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Widget _friendRequests() {
-    return _createFriendsList(_requests);
+    return _createFriendsList(_requests, shrink: true);
   }
 
   Widget _friendsWidget() {
@@ -181,10 +181,13 @@ class _FriendsPageState extends State<FriendsPage> {
     return _createFriendsList(_searchResult);
   }
 
-  Widget _createFriendsList(List<UserProfileInfo> list) {
-    return Expanded(
+  Widget _createFriendsList(List<UserProfileInfo> list, {bool shrink = false}) {
+    return Flexible(
+      fit: shrink ? FlexFit.loose : FlexFit.tight,
       child: ListView.builder(
         itemCount: list.length,
+        shrinkWrap: shrink,
+        physics: shrink ? const NeverScrollableScrollPhysics() : null,
         itemBuilder: (context, index) {
           final user = list[index];
 
