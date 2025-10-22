@@ -1,3 +1,4 @@
+import 'package:deferred_indexed_stack/deferred_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/post/create_post.dart';
@@ -20,8 +21,11 @@ class _HomeNavigationState extends State<HomeNavigation> {
     super.initState();
 
     _selectedPageIndex = 0;
-    _pages = [HomePage(), CreatePost(), OwnUserProfile()];
-  }
+    _pages = [
+      DeferredTab(child: HomePage()),
+      DeferredTab(child: CreatePost()),
+      DeferredTab(child: OwnUserProfile()),
+    ]}
 
   @override
   void dispose() {
@@ -31,7 +35,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
+      body: DeferredIndexedStack(
         index: _selectedPageIndex,
         children: _pages,
       ),

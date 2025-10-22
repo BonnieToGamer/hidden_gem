@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  deferred_indexed_stack:
+    dependency: "direct main"
+    description:
+      name: deferred_indexed_stack
+      sha256: "16ce8d1691eb476253880680b8de49a375b4bc1faf705a8a2ba96202074ecdb2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4+hotfix.1"
   email_validator:
     dependency: "direct main"
     description:
