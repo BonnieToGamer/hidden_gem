@@ -19,16 +19,33 @@ class AuthState {
 class AuthService {
   const AuthService._();
 
+  static final _manualStateController = BehaviorSubject<AuthState>();
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
   static Stream<AuthState> get authStateChanges {
-    return _auth.authStateChanges().map<AuthState>((user) {
-      if (user != null) {
-        return AuthState.authenticated(user);
-      } else {
-        return AuthState.unauthenticated();
+    return Rx.merge([
+      _auth.authStateChanges().map<AuthState>((user) {
+        if (user != null) {
+          return AuthState.authenticated(user);
+        } else {
+          return AuthState.unauthenticated();
+        }
+      }),
+      _manualStateController.stream,
+    ]).startWith(AuthState.loading());
+  }
+
+  static Future<void> refreshUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.reload();
+      final refreshed = _auth.currentUser;
+      if (refreshed != null) {
+        _manualStateController.add(AuthState.authenticated(refreshed));
       }
-    }).startWith(AuthState.loading());
+    } else {
+      _manualStateController.add(AuthState.unauthenticated());
+    }
   }
 
   static Future<void> signOut() async {

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_gem/pages/auth/authenticate.dart';
+import 'package:hidden_gem/pages/auth/verify_email.dart';
 import 'package:hidden_gem/pages/home_nav.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/auth_service.dart';
@@ -13,12 +14,14 @@ class CreateUser extends StatefulWidget {
   final String name;
   final String email;
   final String password;
+  final bool continueBuilding;
 
   const CreateUser({
     super.key,
     required this.name,
     required this.email,
     required this.password,
+    required this.continueBuilding,
   });
 
   @override
@@ -26,55 +29,25 @@ class CreateUser extends StatefulWidget {
 }
 
 class _CreateUserState extends State<CreateUser> {
-  bool _isEmailVerified = false;
   bool _hasSentEmailVerify = false;
 
   @override
   void initState() {
     super.initState();
 
-    _buildProfile();
+    if (widget.continueBuilding) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _continueBuilding();
+      });
+    } else {
+      _createAccount();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_hasSentEmailVerify && !_isEmailVerified) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                "An email has been sent to your inbox.\nPlease verify your email\nand come back to the app.",
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final verified =
-                      await AuthService.checkEmailVerificationStatus();
-                  if (!mounted) return;
-
-                  if (!verified) {
-                    final snackBar = SnackBar(
-                      content: const Text("Email not verified"),
-                    );
-
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    return;
-                  }
-
-                  setState(() {
-                    _isEmailVerified = true;
-                  });
-
-                  _continueBuilding();
-                },
-                child: const Text("Check if verified"),
-              ),
-            ],
-          ),
-        ),
-      );
+    if (_hasSentEmailVerify) {
+      return VerifyEmail(onVerified: _continueBuilding);
     }
 
     return Scaffold(
@@ -92,38 +65,35 @@ class _CreateUserState extends State<CreateUser> {
     );
   }
 
-  Future<void> _buildProfile() async {
+  Future<void> _createAccount() async {
     final user = await AuthService.signUpUser(widget.email, widget.password);
 
     if (!mounted) return;
 
     if (user == null) {
-      final snackBar = SnackBar(
-        content: const Text("Could not create account"),
-      );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: const Text("Could not create account")));
       return;
     }
 
-    setState(() {
-      _hasSentEmailVerify = true;
-      _isEmailVerified = false;
-    });
+    await user.updateDisplayName(widget.name);
+
+    if (!mounted) return;
+
+    setState(() => _hasSentEmailVerify = true);
 
     await AuthService.verifyEmail(user);
   }
 
   Future<void> _continueBuilding() async {
     final user = FirebaseAuth.instance.currentUser!;
-
-    await user.updateDisplayName(widget.name);
+    final name = user.displayName!;
 
     if (!mounted) return;
 
-    String rawAvatar = Jdenticon.toSvg(widget.name);
+    // Generate avatar
+    String rawAvatar = Jdenticon.toSvg(name);
     final avatarBytes = await svgToPng(
       rawAvatar,
       context,
@@ -153,12 +123,11 @@ class _CreateUserState extends State<CreateUser> {
 
     await user.reload();
     final refreshedUser = FirebaseAuth.instance.currentUser!;
-    await UserService.createUserManual(refreshedUser.uid, widget.name, url);
+    await UserService.createUserManual(refreshedUser.uid, name, url);
 
     if (!mounted) return;
 
-    await AuthService.signOut();
-    await AuthService.signInUser(widget.email, widget.password);
+    await AuthService.refreshUser();
 
     if (!mounted) return;
 

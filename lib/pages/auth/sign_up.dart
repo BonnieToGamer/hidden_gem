@@ -229,6 +229,7 @@ Password must be:
                       name: _nameController.text,
                       email: _emailController.text,
                       password: _passwordController.text,
+                      continueBuilding: false,
                     ),
                   ),
                   (route) => false,
