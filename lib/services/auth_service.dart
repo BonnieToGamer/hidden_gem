@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -75,7 +76,8 @@ class AuthService {
     await user.sendEmailVerification();
   }
 
-  static Future<void> waitForEmailVerification(User user, {
+  static Future<void> waitForEmailVerification(
+    User user, {
     Duration checkInterval = const Duration(seconds: 3),
   }) async {
     if (FirebaseAuth.instance.currentUser == null) {
@@ -93,7 +95,6 @@ class AuthService {
     await FirebaseAuth.instance.currentUser?.reload();
     return FirebaseAuth.instance.currentUser?.emailVerified ?? false;
   }
-
 
   static Future<User?> signInUser(String email, String password) async {
     try {
@@ -143,12 +144,74 @@ class AuthService {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (err) {
-      print("Error sending password reset (auth exception): ${err.message
-          .toString()}");
+      print(
+        "Error sending password reset (auth exception): ${err.message.toString()}",
+      );
       throw Exception(err.message.toString());
     } catch (err) {
       print("Error sending password reset (*): ${err.toString()}");
       throw Exception(err.toString());
     }
+  }
+
+  static Future<void> updateEmail(String newEmail) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    try {
+      await user.verifyBeforeUpdateEmail(
+        newEmail,
+        ActionCodeSettings(
+          url: 'https://example.com', // TODO: placeholder URL
+          handleCodeInApp: false,
+        ),
+      );
+
+      print("Verification email sent to the new address.");
+    } on FirebaseAuthException catch (e) {
+      print("Error updating email: ${e.code} - ${e.message}");
+    }
+  }
+
+  static Future<bool> updatePassword(String newPassword) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return false;
+
+    try {
+      await user.updatePassword(newPassword);
+      print("Updated password!");
+      return true;
+    } on FirebaseAuthException catch (e) {
+      print("Error updating password: ${e.code} - ${e.message}");
+      return false;
+    }
+  }
+
+  static Future<bool> reAuthenticate(String email, String password) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return false;
+
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+      print("Reauthentication successful");
+      return true;
+    } on FirebaseAuthException catch (e) {
+      print("Reauthentication failed: ${e.code} - ${e.message}");
+      return false;
+    }
+  }
+
+  static bool isEmailAuthenticated() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+
+    return user.providerData.any((info) => info.providerId == 'password');
   }
 }
