@@ -4,6 +4,7 @@ import 'package:hidden_gem/models/comment.dart';
 import 'package:hidden_gem/models/friend.dart';
 import 'package:hidden_gem/models/like.dart';
 import 'package:hidden_gem/models/post.dart';
+import 'package:hidden_gem/models/report.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
@@ -253,26 +254,21 @@ class PostsService {
     _lastCommentDocument = null;
   }
 
-  // make this actually work :(
-  // https://www.geeksforgeeks.org/dsa/haversine-formula-to-find-distance-between-two-points-on-a-sphere/
-  // Stream<List<Post>> getPosts(LatLng center, double radiusInKm) {
-  //   final collectionReference = _db.collection("posts").withConverter<Post>(
-  //       fromFirestore: (ds, _) => Post.fromFirestore(ds),
-  //       toFirestore: (obj, _) => obj.toMap()
-  //   );
-  //
-  //   // final stream = GeoCollectionReference(collectionReference)
-  //   //   .subscribeWithin(
-  //   //     center: GeoFirePoint(GeoPoint(center.latitude, center.longitude)),
-  //   //     radiusInKm: radiusInKm,
-  //   //     field: 'point',
-  //   //     geopointFrom: (Post data) => data.point.geopoint
-  //   // );
-  //   //
-  //   // return stream.map((snapshots) =>
-  //   //   snapshots.map(
-  //   //           (docSnap) => docSnap.data()!
-  //   //   ).toList()
-  //   // );
-  // }
+  static Future<bool> reportPost(Report report) async {
+    final querySnapshot = await _db
+        .collection("reports")
+        .where("postId", isEqualTo: report.postId)
+        .where("userId", isEqualTo: report.userId)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      print("User already reported this post");
+      return false;
+    }
+
+    await _db.collection("reports").add(report.toMap());
+    print("Post reported successfully");
+    return true;
+  }
 }

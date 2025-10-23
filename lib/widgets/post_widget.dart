@@ -15,6 +15,8 @@ import 'package:hidden_gem/widgets/comments.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../models/report.dart';
+
 class PostWidget extends StatefulWidget {
   final Post post;
   final bool inlineComments;
@@ -272,6 +274,8 @@ class _PostWidgetState extends State<PostWidget>
               _likes(context),
               SizedBox(width: 5),
               _commentsButton(context),
+              SizedBox(width: 5),
+              _reportButton(context),
             ],
           ),
           _header(context),
@@ -411,6 +415,68 @@ class _PostWidgetState extends State<PostWidget>
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _reportButton(BuildContext context) {
+    final user = Provider
+        .of<AuthState>(context, listen: false)
+        .user!;
+
+    return Padding(
+      padding: const EdgeInsets.all(1.0),
+      child: GestureDetector(
+        onTap: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) =>
+                AlertDialog(
+                  title: const Text('Report post?'),
+                  content: const Text(
+                    'Are you sure you want to report this post?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Report',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+          );
+
+          if (confirm == true) {
+            final report = Report(
+              userId: user.uid,
+              postId: widget.post.postId!,
+              timestamp: Timestamp.now(),
+            );
+
+            final reportStatus = await PostsService.reportPost(report);
+
+            if (reportStatus == true) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Post reported")));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Post already reported")));
+            }
+          }
+        },
+        child: Icon(
+          Icons.flag_outlined,
+          color: Theme
+              .of(context)
+              .primaryColor,
+          size: 32,
+        ),
       ),
     );
   }
