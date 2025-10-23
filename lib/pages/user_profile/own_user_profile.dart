@@ -19,12 +19,29 @@ class OwnUserProfile extends StatefulWidget {
 
 class _OwnUserProfileState extends State<OwnUserProfile>
     with AutomaticKeepAliveClientMixin<OwnUserProfile> {
+  var hasRequests = false;
+
   @override
   void initState() {
     super.initState();
+
+    checkRequests();
   }
 
-  void newFriendCallback() {}
+  void newFriendCallback() {
+    checkRequests();
+  }
+
+  Future<void> checkRequests() async {
+    final user = Provider
+        .of<AuthState>(context, listen: false)
+        .user!;
+    final requests = await FriendService.getRequests(user.uid);
+
+    setState(() {
+      hasRequests = requests.isNotEmpty;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +62,9 @@ class _OwnUserProfileState extends State<OwnUserProfile>
                 ),
               );
             },
-            icon: Icon(Icons.group, color: Theme.of(context).primaryColor),
+            icon: Icon(hasRequests ? Icons.group_add : Icons.group, color: Theme
+                .of(context)
+                .primaryColor),
           ),
           IconButton(
             onPressed: () {
@@ -62,7 +81,6 @@ class _OwnUserProfileState extends State<OwnUserProfile>
         user: UserProfileInfo.fromUser(user),
         postStream: PostsService.getOwnPosts(user.uid),
       ),
-      // bottomNavigationBar: CustomNavigationBar(currentIndex: 2),
     );
   }
 
