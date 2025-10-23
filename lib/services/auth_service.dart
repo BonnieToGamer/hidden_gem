@@ -54,6 +54,30 @@ class AuthService {
     return null;
   }
 
+  static Future<void> verifyEmail(User user) async {
+    await user.sendEmailVerification();
+  }
+
+  static Future<void> waitForEmailVerification(User user, {
+    Duration checkInterval = const Duration(seconds: 3),
+  }) async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      throw Exception("No signed in user");
+    }
+
+    await FirebaseAuth.instance.currentUser?.reload();
+    while (FirebaseAuth.instance.currentUser?.emailVerified == false) {
+      await Future.delayed(checkInterval);
+      await FirebaseAuth.instance.currentUser?.reload();
+    }
+  }
+
+  static Future<bool> checkEmailVerificationStatus() async {
+    await FirebaseAuth.instance.currentUser?.reload();
+    return FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+  }
+
+
   static Future<User?> signInUser(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(

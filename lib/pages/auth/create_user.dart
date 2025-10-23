@@ -26,15 +26,57 @@ class CreateUser extends StatefulWidget {
 }
 
 class _CreateUserState extends State<CreateUser> {
+  bool _isEmailVerified = false;
+  bool _hasSentEmailVerify = false;
+
   @override
   void initState() {
     super.initState();
 
-    buildProfile();
+    _buildProfile();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_hasSentEmailVerify && !_isEmailVerified) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "An email has been sent to your inbox.\nPlease verify your email\nand come back to the app.",
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final verified =
+                      await AuthService.checkEmailVerificationStatus();
+                  if (!mounted) return;
+
+                  if (!verified) {
+                    final snackBar = SnackBar(
+                      content: const Text("Email not verified"),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    return;
+                  }
+
+                  setState(() {
+                    _isEmailVerified = true;
+                  });
+
+                  _continueBuilding();
+                },
+                child: const Text("Check if verified"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: const Center(
         child: Column(
@@ -50,14 +92,14 @@ class _CreateUserState extends State<CreateUser> {
     );
   }
 
-  Future<void> buildProfile() async {
+  Future<void> _buildProfile() async {
     final user = await AuthService.signUpUser(widget.email, widget.password);
 
     if (!mounted) return;
 
     if (user == null) {
       final snackBar = SnackBar(
-          content: const Text("Could not create account")
+        content: const Text("Could not create account"),
       );
 
       if (!mounted) return;
@@ -65,6 +107,17 @@ class _CreateUserState extends State<CreateUser> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
+
+    setState(() {
+      _hasSentEmailVerify = true;
+      _isEmailVerified = false;
+    });
+
+    await AuthService.verifyEmail(user);
+  }
+
+  Future<void> _continueBuilding() async {
+    final user = FirebaseAuth.instance.currentUser!;
 
     await user.updateDisplayName(widget.name);
 
@@ -83,7 +136,7 @@ class _CreateUserState extends State<CreateUser> {
 
     if (id == null) {
       final snackBar = SnackBar(
-          content: const Text("Could not create account")
+        content: const Text("Could not create account"),
       );
 
       if (!mounted) return;
@@ -109,8 +162,12 @@ class _CreateUserState extends State<CreateUser> {
 
     if (!mounted) return;
 
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-        builder: (context) => Authenticate(forward: () => HomeNavigation())), (
-        _) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Authenticate(forward: () => HomeNavigation()),
+      ),
+      (_) => false,
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:hidden_gem/pages/home_nav.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/pages/auth/sign_up.dart';
 import 'package:hidden_gem/services/auth_service.dart';
+import 'package:hidden_gem/services/user_service.dart';
 
 class SignIn extends StatefulWidget {
   SignIn({super.key});
@@ -112,7 +113,10 @@ class _SignInState extends State<SignIn> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
         onPressed: () async {
-          await AuthService.signInWithGoogle();
+          final user = await AuthService.signInWithGoogle();
+          if (user != null) {
+            await UserService.createUser(user);
+          }
         },
       ),
     );
