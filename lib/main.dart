@@ -6,6 +6,8 @@ import 'package:hidden_gem/pages/auth/authenticate.dart';
 import 'package:hidden_gem/pages/home_nav.dart';
 import 'package:hidden_gem/pages/home_page.dart';
 import 'package:hidden_gem/services/auth_service.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -14,6 +16,9 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await GoogleSignIn.instance.initialize();
+
+  await Hive.initFlutter();
+  await Hive.openBox("postsBox");
 
   runApp(
     StreamProvider<AuthState>.value(

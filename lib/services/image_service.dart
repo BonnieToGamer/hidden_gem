@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:hidden_gem/services/network_service.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class ImageService {
@@ -13,6 +15,15 @@ class ImageService {
   // Returns null if the upload fails.
   static Future<String?> uploadImage(File image, String path) async {
     final id = _uuid.v4();
+
+    // Offline
+    if (await NetworkService.hasConnection() == false) {
+      final directory = await getApplicationDocumentsDirectory();
+      final newPath = '${directory.path}/$id.img';
+      await image.copy(newPath);
+      return id;
+    }
+
     final imageRef = FirebaseStorage.instance.ref().child(path).child(id);
 
     try {
@@ -20,6 +31,18 @@ class ImageService {
       return id;
     } on FirebaseException catch (e) {
       print("Error uploading image: $e");
+      return null;
+    }
+  }
+
+  static Future<File?> getLocalImage(String id) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = '${directory.path}/$id.img';
+    final imageFile = File(imagePath);
+
+    if (await imageFile.exists()) {
+      return imageFile;
+    } else {
       return null;
     }
   }
@@ -48,6 +71,21 @@ class ImageService {
       await FirebaseStorage.instance.ref().child(path).child(id).delete();
     } catch (e) {
       print("Error deleting image: $e");
+    }
+  }
+
+  static Future<void> clearOfflineImages() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final files = directory.listSync();
+      for (final file in files) {
+        if (file is File && file.path.endsWith('.img')) {
+          await file.delete();
+        }
+      }
+      print("Offline images cleared");
+    } catch (e) {
+      print("Error clearing offline images: $e");
     }
   }
 }

@@ -61,7 +61,7 @@ class Authenticate extends StatelessWidget {
 
   FutureBuilder<void> buildForward(AuthState state) {
     return FutureBuilder(
-      future: loadInitialFriendsData(state.user!),
+      future: loadInitialData(state.user!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -74,7 +74,7 @@ class Authenticate extends StatelessWidget {
     );
   }
 
-  Future<void> loadInitialFriendsData(User user) async {
+  Future<void> loadInitialData(User user) async {
     await FriendService.acceptSentRequests(user.uid);
     await FriendService.handleDeletedRequests(user.uid);
   }

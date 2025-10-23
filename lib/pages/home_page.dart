@@ -73,10 +73,7 @@ class _HomePageState extends State<HomePage>
       );
     }
 
-    return Scaffold(
-      body: child,
-      // bottomNavigationBar: CustomNavigationBar(currentIndex: 0),
-    );
+    return Scaffold(body: child);
   }
 
   Widget _buildSwitcher() {

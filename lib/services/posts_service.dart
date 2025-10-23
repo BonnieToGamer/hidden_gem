@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:hidden_gem/models/comment.dart';
@@ -8,6 +10,8 @@ import 'package:hidden_gem/models/report.dart';
 import 'package:hidden_gem/models/user_info.dart';
 import 'package:hidden_gem/services/friend_service.dart';
 import 'package:hidden_gem/services/image_service.dart';
+import 'package:hidden_gem/services/network_service.dart';
+import 'package:hive/hive.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PostsService {
@@ -20,6 +24,42 @@ class PostsService {
 
   static Future<void> addPost(Post post) async {
     await _db.collection(_collectionPath).add(post.toMap());
+  }
+
+  static Future<void> syncPosts() async {
+    if (await NetworkService.hasConnection() == false) {
+      return;
+    }
+
+    final box = Hive.box('postsBox');
+
+    for (int i = 0; i < box.length; i++) {
+      final post = box.getAt(i);
+
+      List<String> uploadedImageIds = [];
+      for (String id in post["imageIds"]) {
+        final localImage = await ImageService.getLocalImage(id);
+        if (localImage != null) {
+          final newId = await ImageService.uploadImage(localImage, 'images');
+          if (newId != null) {
+            uploadedImageIds.add(newId);
+          }
+        } else {
+          uploadedImageIds.add(id);
+        }
+      }
+
+      final lat = post['point']['latitude'];
+      final lng = post['point']['longitude'];
+
+      post['imageIds'] = uploadedImageIds;
+      post['timestamp'] = Timestamp.fromDate(post['timestamp']);
+      post['point'] = GeoFirePoint(GeoPoint(lat, lng)).data;
+
+      await _db.collection(_collectionPath).add(post);
+    }
+
+    box.clear();
   }
 
   static Future<void> createPost(
@@ -41,22 +81,42 @@ class PostsService {
         imageIds: imageIds,
         isPublic: isPublic,
       );
+
+      // Offline
+      if (await NetworkService.hasConnection() == false) {
+        final box = Hive.box('postsBox');
+        final data = post.toMap();
+        data['point'] = {
+          'latitude': point.latitude,
+          'longitude': point.longitude,
+        };
+
+        final ts = data['timestamp'];
+        data['timestamp'] = ts.toDate();
+
+        await box.add(data);
+        print("Added post to local storage");
+        return;
+      }
+
       await _db.collection(_collectionPath).add(post.toMap());
     } catch (e) {
       print("Error in createPost $e");
     }
   }
 
-  static Stream<List<Post>> getAllPosts(String userId,
-      Stream<List<String>> friendIdsStream,) {
+  static Stream<List<Post>> getAllPosts(
+    String userId,
+    Stream<List<String>> friendIdsStream,
+  ) {
     return friendIdsStream.switchMap((friendIds) {
       final publicStream = FirebaseFirestore.instance
           .collection('posts')
           .where('isPublic', isEqualTo: true)
           .where(
-        'authorId',
-        whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
-      )
+            'authorId',
+            whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+          )
           .orderBy('timestamp', descending: true)
           .snapshots();
 
@@ -90,23 +150,25 @@ class PostsService {
     );
   }
 
-  static Stream<List<Post>> getUsersPosts(String userId,
-      Stream<List<String>> friendIdsStream,) {
+  static Stream<List<Post>> getUsersPosts(
+    String userId,
+    Stream<List<String>> friendIdsStream,
+  ) {
     return friendIdsStream.switchMap((friendIds) {
       // Query posts by current user
       final ownStream = _db
           .collection('posts')
           .where('authorId', isEqualTo: userId)
           .where(
-        'authorId',
-        whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
-      )
+            'authorId',
+            whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+          )
           .where('isPublic', isEqualTo: true)
           .orderBy('timestamp', descending: true)
           .snapshots();
 
       return ownStream.map(
-            (snapshot) =>
+        (snapshot) =>
             snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList(),
       );
     });
@@ -145,14 +207,17 @@ class PostsService {
     _lastPostDocument = null;
   }
 
-  static Future<List<Post>> getPagedPosts(String uid, List<String> friendIds,
-      {int limit = 10}) async {
+  static Future<List<Post>> getPagedPosts(
+    String uid,
+    List<String> friendIds, {
+    int limit = 10,
+  }) async {
     Query query = _db
         .collection("posts")
         .where(
-      "authorId",
-      whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
-    )
+          "authorId",
+          whereIn: friendIds.isEmpty ? ['__dummy__'] : friendIds,
+        )
         .where("isPublic", isEqualTo: true)
         .orderBy("timestamp", descending: true)
         .limit(limit);
@@ -179,12 +244,12 @@ class PostsService {
     await _db
         .collection("likes")
         .add(
-      Like(
-        postId: post.postId!,
-        userId: uid,
-        timestamp: Timestamp.now(),
-      ).toMap(),
-    );
+          Like(
+            postId: post.postId!,
+            userId: uid,
+            timestamp: Timestamp.now(),
+          ).toMap(),
+        );
   }
 
   static Future<void> unlikePost(Like like) async {
@@ -200,8 +265,8 @@ class PostsService {
         .snapshots()
         .map(
           (snapshot) =>
-          snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList()[0],
-    );
+              snapshot.docs.map((doc) => Like.fromFirestore(doc)).toList()[0],
+        );
   }
 
   static Stream<int> getLikeCount(Post post) {
@@ -228,7 +293,8 @@ class PostsService {
     await _db.collection("comments").doc(comment.id).delete();
   }
 
-  static Future<List<Comment>> getPagedComments(String postId, {
+  static Future<List<Comment>> getPagedComments(
+    String postId, {
     int limit = 10,
   }) async {
     Query query = _db

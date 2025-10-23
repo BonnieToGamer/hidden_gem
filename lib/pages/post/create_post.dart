@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:hidden_gem/constants.dart';
 import 'package:hidden_gem/pages/post/new_post.dart';
 import 'package:hidden_gem/pages/post/take_picture.dart';
+import 'package:hidden_gem/services/image_service.dart';
+import 'package:hidden_gem/services/posts_service.dart';
 import 'package:hidden_gem/widgets/gallery_image.dart';
 import 'package:hidden_gem/widgets/navigation_bar.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -126,9 +128,57 @@ class _CreatePostState extends State<CreatePost>
       appBar: AppBar(title: Text("Select up to $maxImagesPerPost images.")),
       body: Column(
         verticalDirection: VerticalDirection.down,
-        children: [Expanded(child: _buildGallery())],
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ElevatedButton.icon(
+              onPressed: _loading
+                  ? null
+                  : () async {
+                      setState(() => _loading = true);
+
+                      try {
+                        await PostsService.syncPosts();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Offline posts synced!"),
+                          ),
+                        );
+
+                        await ImageService.clearOfflineImages();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Sync failed: $e")),
+                        );
+                      } finally {
+                        if (mounted) setState(() => _loading = false);
+                      }
+                    },
+              icon: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.sync),
+              label: _loading
+                  ? const Text("Syncing...")
+                  : const Text("Sync Offline Posts"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Theme.of(context).canvasColor,
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+          ),
+
+          Expanded(child: _buildGallery()),
+        ],
       ),
-      // bottomNavigationBar: CustomNavigationBar(currentIndex: 1),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
