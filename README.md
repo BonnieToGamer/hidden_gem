@@ -1,6 +1,8 @@
 # Hidden gem
 
-![App Screenshot](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" alt="App Screenshot" width="40%"/>
+</p>
 
 ## Table of contents
 1. [Introduction](#introduction)
