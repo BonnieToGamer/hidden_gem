@@ -8,7 +8,7 @@
 1. [Build instructions](#build-instructions)
 1. [Technologies used](#technologies-used)
 1. [Acceptance tests](#acceptance-tests)
-~~
+
 ## Introduction
 A PA1414 project
 
